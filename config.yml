@@ -1,0 +1,28 @@
+frequency: 40 # frequency in MHz
+min_photons : 200 # threshold for minimum photon counts for the FLIM image
+max_photons : 1000000 # threshold for maximum photon counts for the FLIM image
+
+bins : "3x3" # binning value for  data. Can only be any odd number or 256.
+
+ref_file: "None"
+ref_lifetime: 4
+
+subtract_offset: True # set True to calculate the intensity offset (baseline)
+# of FLIM data according to the first "num_offset" data points
+# of a decay curve, and subtract this number from all time bins in
+# the decay curve (the negative values in the results will be changed to 0).
+subtract_offsetRef: True #DEFAULT: choose True to compensate intensity offset for reference data
+num_offset: 9 
+mask_samples: False # choose False to mask by intensity or 1 for import of .tif mask 
+
+vmin_int: 0
+vmax_int: 1000
+
+selected_file: "None"
+
+lifetime_vmin: 0
+lifetime_vmax: 10
+lifetime_map: "average"
+lifetime_itegrate: "False"
+
+tau_violin: "average"
