@@ -1,0 +1,6 @@
+# Ignore virtual environment
+flimpa_env/
+
+# Ignore Python bytecode files
+__pycache__/
+*.py[cod]
