@@ -12,8 +12,8 @@ from matplotlib.widgets import EllipseSelector
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar2QT
 
-from shared_data import SharedData
-from mainwindow import *
+from utils.shared_data import SharedData
+from utils.mainwindow import *
 
 
 class PhasorPlot(QWidget):

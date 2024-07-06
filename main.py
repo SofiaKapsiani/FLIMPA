@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import QApplication
-from dark_theme import get_darkModePalette 
-from mainwindow import MainWindow
+from utils.dark_theme import get_darkModePalette 
+from utils.mainwindow import MainWindow
 
 import sys
 import os

@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QLabel, QHBoxLayout, QLineEdit, QComboBox, QGridLayout, QSizePolicy, QApplication, QWidget
 from PySide6.QtCore import Qt
 
-from mainwindow import *
-from shared_data import SharedData 
+from utils.mainwindow import *
+from utils.shared_data import SharedData 
 
 class ParameterWidgets():
     def __init__(self, main_window):
