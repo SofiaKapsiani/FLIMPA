@@ -143,8 +143,7 @@ class PhasorPlot(QWidget):
     def add_plot(self):
         self.figure_phasor.clear()
         self.ax = self.figure_phasor.subplots()
-        w = 2*math.pi*int(self.shared_info.config["frequency"])*1e6# angular frequency
-
+       
         dark_gray = (18 / 255, 18 / 255, 18 / 255)
 
         # Set the figure background to dark gray
@@ -161,11 +160,11 @@ class PhasorPlot(QWidget):
         self.con_img = self.ax.plot(self.x, self.y, 'dimgray', linewidth=1)
 
         # plot mono-exponential lifetimes on semicircle
-    
-        tau_labels = np.arange(0 * 1e-9, 14 * 1e-9, 1e-9)  # Array from 0 to 14e-9 with step size of 1e-9
-        g_unisem = 1 / (1 + w ** 2 * tau_labels ** 2)  # Calculate g-coordinates
-        s_unisem = w * tau_labels / (1 + w ** 2 * tau_labels ** 2)  # Calculate s-coordinates
-        p1 = self.ax.plot(g_unisem, s_unisem, 'o', markersize=3, mec='#ababab', mfc='dimgray') 
+        #w = 2*math.pi*int(self.shared_info.config["frequency"])*1e6# angular frequency
+        #tau_labels = np.arange(0 * 1e-9, 14 * 1e-9, 1e-9)  # Array from 0 to 14e-9 with step size of 1e-9
+        #g_unisem = 1 / (1 + w ** 2 * tau_labels ** 2)  # Calculate g-coordinates
+        #s_unisem = w * tau_labels / (1 + w ** 2 * tau_labels ** 2)  # Calculate s-coordinates
+        #p1 = self.ax.plot(g_unisem, s_unisem, 'o', markersize=3, mec='#ababab', mfc='dimgray') 
 
         self.ax.set_xlim([-0.005, 1])
         self.ax.set_ylim([0, 0.65])

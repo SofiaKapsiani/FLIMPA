@@ -1,11 +1,13 @@
 from PySide6.QtWidgets import (QStatusBar, QMenuBar, QFileDialog, QInputDialog, QFileDialog, QLineEdit,
                                QProgressDialog, QApplication, QMessageBox, QComboBox, QVBoxLayout, QDialogButtonBox, QDialog)
+
+from PySide6.QtCore import Qt
 import numpy as np
-#from lifetime_cal import LifetimeData
+from utils.lifetime_cal import LifetimeData
 from utils.mainwindow import *
 from utils.shared_data import SharedData
 #import save_data 
-#from plot_imgs import PlotImages
+from utils.plot_imgs import PlotImages
 
 class ToolBarComponents:
     def __init__(self, main_window, app):
@@ -13,7 +15,7 @@ class ToolBarComponents:
         self.app = app
         self.shared_info = SharedData()
 
-        #self.plotImages = PlotImages(self.main_window)
+        self.plotImages = PlotImages(self.main_window)
         self.setup_menu()
         self.setup_statusbar()
 

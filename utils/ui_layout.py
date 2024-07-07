@@ -1,16 +1,18 @@
 from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, QGroupBox, QPushButton,
                                 QTableWidget, QWidget, QTabWidget, QSizePolicy, QScrollArea)
-
+from utils.helper_functions import Helpers
 
 """File for providing the UI layout"""
 
 class UILayout:
     def __init__(self, main_window):
         self.main_window = main_window
+        self.tabs_widget = QTabWidget()
+        self.helpers = Helpers(self.main_window) # import helper functions
 
     def prepareLayout(self):
 
-        """Preparing left-hand layout"""
+        """preparing left-hand layout"""
         # Initialize the parameters group box
         parameters_group_box = QGroupBox("") # no title
         parameters_group_box.setLayout(self.main_window.parameters_data.create_parameters_layout())
@@ -59,7 +61,7 @@ class UILayout:
         left_side_layout.addLayout(buttonVLayout, 1)
         left_side_layout.addLayout(h_layout_phasors, 9)
 
-        """Preparing right-hand layout"""
+        """preparing right-hand layout"""
         # Tabs for displaying images
         tabs_visualise_imgs = QWidget()
         tabs_visualise_imgs.setStyleSheet("QWidget { background-color: rgb(18, 18, 18); }")
@@ -68,7 +70,6 @@ class UILayout:
         tabs_visualise_imgs.setLayout(layout_tabs)
         
         # initate tabs widget and define style
-        self.tabs_widget = QTabWidget()
         self.tabs_widget.addTab(tabs_visualise_imgs, "Intensity display")
         self.tabs_widget.setStyleSheet("""
             QTabWidget::pane { /* The tab widget frame */
@@ -85,21 +86,21 @@ class UILayout:
 
         # table to show file names
         table_filenames = QVBoxLayout()
-        self.main_window.file_names_table.setStyleSheet("""QTableWidget {
+        self.main_window.fileTable.setStyleSheet("""QTableWidget {
                 background-color: rgb(40, 40, 40);
                 margin-top:50 px;
                 border: 1px solid rgb(40, 40, 40);                       
                 padding: 10px;                         
                 }
                 """)
-        table_filenames.addWidget(self.main_window.file_names_table, 14)
+        table_filenames.addWidget(self.main_window.fileTable, 14)
         
 
         # button to delete imported files not needed for the analysis
         delete_files_button = QPushButton("Delete selected files")
         delete_files_button.setStyleSheet('QPushButton {color: white}')
         delete_files_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding) 
-        #delete_files_button.clicked.connect(self.delete_selected_files)
+        delete_files_button.clicked.connect(self.helpers.delete_selected_files)
 
         # create a vertical layout for the delete button to center it
         delete_v_layout = QVBoxLayout()
@@ -125,6 +126,7 @@ class UILayout:
         right_side_layout.addWidget(right_h_widget)
         right_side_layout.addStretch(1)
 
+        """combine layouts"""
         # main layout
         main_layout = QHBoxLayout()
         main_layout.addLayout(left_side_layout, 1)
