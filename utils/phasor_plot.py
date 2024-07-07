@@ -13,6 +13,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar2QT
 
 from utils.shared_data import SharedData
+from utils.helper_functions import Helpers
 from utils.mainwindow import *
 
 
@@ -21,6 +22,7 @@ class PhasorPlot(QWidget):
         super().__init__(main_window)  # Make sure to call the superclass initializer
         self.main_window = main_window
         self.shared_info = SharedData()
+        self.helpers = Helpers(self.main_window)
         self.w = 2 * math.pi * int(self.shared_info.config["frequency"]) * 1000000
         self.g = None
         self.s = None
@@ -245,7 +247,7 @@ class PhasorPlot(QWidget):
 
             self.inside_ellipse = ((self.g - x0) ** 2 / a ** 2) + ((self.s - y0) ** 2 / b ** 2) <= 1
 
-            self.main_window.update_data_with_roi(self.inside_ellipse)
+            self.helpers.update_data_with_roi(self.inside_ellipse)
 
     def plot_phasor_coordinates(self, cmap=None, vmin=None, vmax=None):
         self.figure_phasor.clear()  # Clear the figure to remove all axes

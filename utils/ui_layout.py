@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, QGroupBox, QPushButton,
                                 QTableWidget, QWidget, QTabWidget, QSizePolicy, QScrollArea)
 from utils.helper_functions import Helpers
+from utils.run_analysis import Analysis
 
 """File for providing the UI layout"""
 
@@ -9,6 +10,7 @@ class UILayout:
         self.main_window = main_window
         self.tabs_widget = QTabWidget()
         self.helpers = Helpers(self.main_window) # import helper functions
+        self.analysis = Analysis(self.main_window)
 
     def prepareLayout(self):
 
@@ -34,7 +36,7 @@ class UILayout:
         runPhasorPlotButton = QPushButton("Run Phasor Plot Analysis")
         runPhasorPlotButton.setStyleSheet('QPushButton {color: white}')
         runPhasorPlotButton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding) 
-        #runPhasorPlotButton.clicked.connect(self.run_phasor)
+        runPhasorPlotButton.clicked.connect(self.analysis.run_phasor)
 
         # create a horizontal layout for the run button to center it
         buttonHLayout = QHBoxLayout()
