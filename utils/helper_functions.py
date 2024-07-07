@@ -92,7 +92,7 @@ class Helpers:
                 image_size_inches = 1.3*1.8
             else:
                 cols = 3  # Desired columns
-                image_size_inches = 1.3*1.3
+                image_size_inches = 1.3*1.28
             rows = int(np.ceil(n / cols))  # Calculate required rows
 
             # Calculate figure dimensions
@@ -135,7 +135,7 @@ class Helpers:
                 image_size_inches = 1.3*1.8
             else:
                 cols = 3  # Desired columns
-                image_size_inches = 1.3*1.3
+                image_size_inches = 1.3*1.28
             rows = int(np.ceil(n / cols))  # Calculate required rows
 
             # Calculate figure dimensions
@@ -210,6 +210,8 @@ class Helpers:
                 item = QTableWidgetItem(str(grouped_df.iloc[i, j]))
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)  # Make the item non-editable
                 self.main_window.table_widget.setItem(i, j, item)
+    
+    
 
 class NavigationToolbar_violin(NavigationToolbar2QT):
     # only display the buttons we need

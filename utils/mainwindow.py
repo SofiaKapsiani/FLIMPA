@@ -7,7 +7,7 @@ from utils.parameters_box import ParameterWidgets
 from utils.phasor_plot import PhasorPlot
 from utils.plot_imgs import PlotImages
 from utils.shared_data import SharedData
-from utils.helper_functions import Helpers
+from utils.helper_functions import Helpers, NavigationToolbar_violin
 from utils.settings_box import TabSettingsWidgets
 
 from matplotlib.figure import Figure
@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
         self.fileTable.itemClicked.connect(self.plotImages.displaySelectedImage)
         self.fileTable.itemClicked.connect(self.helpers.displaySelectedtau)
         self.fileTable.itemChanged.connect(self.plotImages.handleCheckboxChange)
-        #self.ui_layout.tabs_widget.currentChanged.connect(self.onTabChanged)
+        self.ui_layout.tabs_widget.currentChanged.connect(self.onTabChanged)
     
     def analysis_finished(self):
         """Generate tabs with results once phasor plot analysis has finished running"""
@@ -178,13 +178,36 @@ class MainWindow(QMainWindow):
             violin_plot_tab.setStyleSheet("QWidget { background-color: rgb(18, 18, 18); }")
             self.violin_plot_layout = QVBoxLayout()
 
-            self.toolbar_violin = self.helpers.NavigationToolbar_violin(self.canvas_violin, self)
+            self.toolbar_violin = NavigationToolbar_violin(self.canvas_violin, self)
             self.violin_plot_layout.addWidget(self.toolbar_violin)
             self.violin_plot_layout.addWidget(self.canvas_violin)
             self.violin_plot_layout.addLayout(self.tab_settings.input_layout(box_type='violin_box'))
 
             violin_plot_tab.setLayout(self.violin_plot_layout)
             self.ui_layout.tabs_widget.addTab(violin_plot_tab, "Violin plots")
+    
+    def onTabChanged(self, index):
+        if self.ui_layout.tabs_widget.tabText(index) == "Intensity display":
+            if self.shared_info.config["selected_file"] in self.shared_info.intensity_img_dict:
+                self.plotImages.plot_img()
+
+        elif self.ui_layout.tabs_widget.tabText(index) == "Lifetime maps":
+            self.plotImages.plot_tau_map()
+            self.phasor_componets.plot_phasor_coordinates(cmap="gist_rainbow_r")
+
+        elif self.ui_layout.tabs_widget.tabText(index) == "Gallery (tau)":
+            print(f"Plot type updated to: {self.shared_info.phasor_settings['plot_type']}")
+            if self.shared_info.phasor_settings["plot_type"] == "individual":
+                self.phasor_componets.plot_phasor_gallery_individual(data_dict=self.shared_info.results_dict)
+            elif self.shared_info.phasor_settings["plot_type"] == "condition":
+                self.phasor_componets.plot_phasor_gallery_condition(data_dict=self.shared_info.results_dict)
+            self.helpers.resizeGallery()
+
+        elif self.ui_layout.tabs_widget.tabText(index) == "Gallery (I)":
+            self.helpers.resizeGallery_I()
+
+        elif self.ui_layout.tabs_widget.tabText(index) == "Violin plots":
+            self.helpers.resizeViolin()
 
     def resizeEvent(self, event):
         """resize figures if window size has been changed"""

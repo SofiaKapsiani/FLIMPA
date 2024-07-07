@@ -182,7 +182,7 @@ class PlotImages():
         # Create a colorbar with a fixed aspect ratio that matches the image's aspect ratio
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
-        cbar =self.figure.colorbar(img_plot, cax=cax, orientation='vertical',)
+        cbar =self.figure_tau.colorbar(img_plot, cax=cax, orientation='vertical',)
         cbar.ax.tick_params(colors='white', labelsize=8)
 
         if masked_image is not None: # Define a custom colormap for the masked image
@@ -217,7 +217,7 @@ class PlotImages():
             image_size_inches = 1.3 * 1.8
         else:
             cols = 3  # Desired columns
-            image_size_inches = 1.3 * 1.3
+            image_size_inches = 1.3 * 1.28
         rows = int(np.ceil(n / cols))  # Calculate required rows
 
         # Calculate figure dimensions
@@ -296,7 +296,7 @@ class PlotImages():
             image_size_inches = 1.3 * 1.8
         else:
             cols = 3  # Desired columns
-            image_size_inches = 1.3 * 1.3
+            image_size_inches = 1.3 * 1.28
         rows = int(np.ceil(n / cols))  # Calculate required rows
 
         # Calculate figure dimensions

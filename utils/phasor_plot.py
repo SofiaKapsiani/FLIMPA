@@ -100,6 +100,9 @@ class PhasorPlot(QWidget):
         self.legend_layout.addStretch(1)
         self.legend_layout.addWidget(self.legendWidget)
 
+        # Add legend_layout to the main layout
+        self.layout.addLayout(self.legend_layout)
+
         if self.shared_info.phasor_settings["plot_type"] == "condition":
             self.legendWidget.legendItemSelected.connect(self.highlightPlotPoints_condition)
         elif self.shared_info.phasor_settings["plot_type"] == "individual":
@@ -297,8 +300,6 @@ class PhasorPlot(QWidget):
 
         self.legendWidget.legendItemSelected.connect(self.highlightPlotPoints_individual)
 
-        self.layout.addLayout(self.legend_layout)
-
         for i, (key, value) in enumerate(data_dict.items()):
             g = value['g']
             s = value['s']
@@ -310,7 +311,7 @@ class PhasorPlot(QWidget):
 
             color = tab20_cmap(i % num_colors)
 
-            if self.shared_info.phasor_settings["scatter_type"]== "scatter":
+            if self.shared_info.phasor_settings["scatter_type"] == "scatter":
                 self.ax.scatter(x=g_scat, y=s_scat, label=key, color=color, s=16, alpha=0.5, linewidth=0.4)
 
             elif self.shared_info.phasor_settings["scatter_type"] == "contour":
@@ -343,8 +344,6 @@ class PhasorPlot(QWidget):
         labels_colors_qt = [(condition, (color[0] * 255, color[1] * 255, color[2] * 255, int(color[3] * 255))) for condition, color in self.plot_data_colors.items()]
         self.legendWidget.updateLegend(labels_colors_qt, self.shared_info.phasor_settings['plot_type'])
         self.legendWidget.legendItemSelected.connect(self.highlightPlotPoints_condition)
-
-        self.layout.addLayout(self.legend_layout)
 
         condition_points = {condition: {'g': [], 's': []} for condition in unique_conditions}
 
@@ -422,7 +421,6 @@ class PhasorPlot(QWidget):
         self.ax.set_ylim([0, 0.65])
         self.canvas_phasor.draw_idle()
 
-
     def highlightPlotPoints_condition(self, label):
         self.deactivate_roi()
         self.btn_select.setEnabled(False)
@@ -470,7 +468,6 @@ class PhasorPlot(QWidget):
         self.ax.set_xlim([-0.005, 1])
         self.ax.set_ylim([0, 0.65])
         self.canvas_phasor.draw_idle()
-
 
 
 class LegendWidget(QListWidget):
@@ -529,4 +526,4 @@ class LegendWidget(QListWidget):
 class NavigationToolbar(NavigationToolbar2QT):
     # only display the buttons we need
     toolitems = [t for t in NavigationToolbar2QT.toolitems if
-                 t[0] in ('Home', 'Back', 'Forward', 'Zoom', 'Pan', 'Save')] # 'Customize', 'Pan"
+                 t[0] in ('Home', 'Back', 'Forward', 'Zoom', 'Pan', 'Save')] # 'Customize', 'Pan'
