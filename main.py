@@ -10,7 +10,7 @@ os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
 # Ensure the icon path is correct
 base_path = os.path.abspath(os.path.dirname(__file__))
-icon_path = os.path.join(base_path, 'icon', 'icon_v12.ico')
+icon_path = os.path.join(base_path, 'icon', 'icon_f.ico')
 
 app = QApplication(sys.argv + ['-platform', 'windows:darkmode=2'])
 app.setStyle('Fusion')
