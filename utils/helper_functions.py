@@ -84,15 +84,18 @@ class Helpers:
         try: 
             self.main_window.figure_gallery.clear()
             n = len(self.shared_info.results_dict.keys())  # Number of images
-            if n ==1:
-                cols=1
-                image_size_inches = 1.3*2.6
-            elif n ==2:
-                cols=2
-                image_size_inches = 1.3*1.8
+            if n == 1:
+                cols = 1
+                image_size_inches = 1.3 * 2.6
+            elif n == 2:
+                cols = 2
+                image_size_inches = 1.3 * 1.8
+            elif n == 3:
+                cols = 3  # Desired columns
+                image_size_inches = 1.3 * 1.28
             else:
                 cols = 3  # Desired columns
-                image_size_inches = 1.3*1.28
+                image_size_inches = 1.3 * 1.22
             rows = int(np.ceil(n / cols))  # Calculate required rows
 
             # Calculate figure dimensions
@@ -127,15 +130,18 @@ class Helpers:
         try: 
             self.main_window.figure_gallery_I.clear()
             n = len(self.shared_info.results_dict.keys())  # Number of images
-            if n ==1:
-                cols=1
-                image_size_inches = 1.3*2.6
-            elif n ==2:
-                cols=2
-                image_size_inches = 1.3*1.8
+            if n == 1:
+                cols = 1
+                image_size_inches = 1.3 * 2.6
+            elif n == 2:
+                cols = 2
+                image_size_inches = 1.3 * 1.8
+            elif n == 3:
+                cols = 3  # Desired columns
+                image_size_inches = 1.3 * 1.28
             else:
                 cols = 3  # Desired columns
-                image_size_inches = 1.3*1.28
+                image_size_inches = 1.3 * 1.22
             rows = int(np.ceil(n / cols))  # Calculate required rows
 
             # Calculate figure dimensions

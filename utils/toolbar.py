@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import (QStatusBar, QMenuBar, QFileDialog, QInputDialog, QFileDialog, QLineEdit,
                                QProgressDialog, QApplication, QMessageBox, QComboBox, QVBoxLayout, QDialogButtonBox, QDialog)
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 import numpy as np
 from utils.lifetime_cal import LifetimeData
 from utils.mainwindow import *
 from utils.shared_data import SharedData
-#import save_data 
+from  utils import save_data 
 from utils.plot_imgs import PlotImages
 
 class ToolBarComponents:
@@ -73,7 +73,7 @@ class ToolBarComponents:
         save_phasor = file_menu.addAction("Save transparent phasor plot")
         save_phasor.triggered.connect(self.save_phasor_transparent)
         file_menu.addSeparator()
-        export_cv = file_menu.addAction("Export lifetime parameter table")
+        export_cv = file_menu.addAction("Export lifetime values table")
         export_cv.triggered.connect(self.save_csv)
         
     def setup_statusbar(self):
@@ -272,18 +272,36 @@ class ToolBarComponents:
         error_msg.setStandardButtons(QMessageBox.Ok)
         error_msg.exec()
 
-    # save lifetime maps
+    
     def save_tau_maps(self):
         if not self.shared_info.results_dict:
             self.save_error_message("Error", "No data has been generated, please run phasor analysis first.")
             return
 
+        # choose which lifetime to save
+        items = ["M", "phi", "average"]
+        item, ok = QInputDialog.getItem(self.main_window, "Save Lifetime Image", "Select lifetime to save:", items, 2, False)
+        if ok and item:
+            lifetime_type = item
+        else:
+            return
+
         output_dir = QFileDialog.getExistingDirectory(self.main_window, "Select the folder to save the lifetime maps")
-        print(output_dir)
-        
         if output_dir:
-            # Save the lifetime maps
-            save_data.save_tau(output_dir, self.shared_info.results_dict, self.shared_info.config)
+            # Show the "Saving data..." progress dialog
+            progress_dialog = QProgressDialog("Saving data...", "", 0, 0, self.main_window)
+            progress_dialog.setWindowTitle("Saving Data")
+            progress_dialog.setWindowModality(Qt.WindowModal)
+            progress_dialog.setMinimumDuration(0)
+            progress_dialog.setCancelButton(None)
+            progress_dialog.show()
+
+            # Process events to ensure the dialog is shown
+            QApplication.processEvents()
+
+            # Add a small delay to ensure the dialog displays correctly
+            QTimer.singleShot(100, lambda: save_data.save_tau(output_dir, progress_dialog, lifetime_type, self.shared_info.results_dict, self.shared_info.config,))
+
         else:
             return
 
@@ -303,8 +321,21 @@ class ToolBarComponents:
             else:
                 return
             
-            # Save the gallery images
-            save_data.save_gallery_view(output_dir, file_name, self.shared_info.results_dict, self.shared_info.config, )
+            # Show the "Saving data..." progress dialog
+            progress_dialog = QProgressDialog("Saving data...", "", 0, 0, self.main_window)
+            progress_dialog.setWindowTitle("Saving Data")
+            progress_dialog.setWindowModality(Qt.WindowModal)
+            progress_dialog.setMinimumDuration(0)
+            progress_dialog.setCancelButton(None)
+            progress_dialog.show()
+
+            # Process events to ensure the dialog is shown
+            QApplication.processEvents()
+
+            # Add a small delay to ensure the dialog displays correctly
+            QTimer.singleShot(100, lambda: save_data.save_gallery_view(output_dir, progress_dialog, file_name, self.shared_info.results_dict, self.shared_info.config, ))
+            
+            
         else:
             return
     
@@ -324,8 +355,20 @@ class ToolBarComponents:
             else:
                 return
             
-            # Save the gallery images
-            save_data.save_gallery_int_view(output_dir, file_name, self.shared_info.results_dict, self.shared_info.config )
+            progress_dialog = QProgressDialog("Saving data...", "", 0, 0, self.main_window)
+            progress_dialog.setWindowTitle("Saving Data")
+            progress_dialog.setWindowModality(Qt.WindowModal)
+            progress_dialog.setMinimumDuration(0)
+            progress_dialog.setCancelButton(None)
+            progress_dialog.show()
+
+            # Process events to ensure the dialog is shown
+            QApplication.processEvents()
+
+            # Add a small delay to ensure the dialog displays correctly
+            QTimer.singleShot(100, lambda: save_data.save_gallery_int_view(output_dir, progress_dialog, file_name, self.shared_info.results_dict, self.shared_info.config ))
+            
+           
         else:
             return
 
@@ -338,8 +381,19 @@ class ToolBarComponents:
         print(output_dir)
         
         if output_dir:
-            # Save the gallery images
-            save_data.save_intensity_images(output_dir, self.shared_info.intensity_img_dict, self.shared_info.raw_data_dict)
+            progress_dialog = QProgressDialog("Saving data...", "", 0, 0, self.main_window)
+            progress_dialog.setWindowTitle("Saving Data")
+            progress_dialog.setWindowModality(Qt.WindowModal)
+            progress_dialog.setMinimumDuration(0)
+            progress_dialog.setCancelButton(None)
+            progress_dialog.show()
+
+            # Process events to ensure the dialog is shown
+            QApplication.processEvents()
+
+            # Add a small delay to ensure the dialog displays correctly
+            QTimer.singleShot(100, lambda: save_data.save_intensity_images(output_dir, progress_dialog, self.shared_info.intensity_img_dict, self.shared_info.raw_data_dict))
+            
         else:
             return
     
@@ -348,11 +402,30 @@ class ToolBarComponents:
         print(output_dir)
         
         if output_dir:
-            # Save the phasor plot
-            save_data.save_phasor_plot(output_dir, self.shared_info.results_dict, self.shared_info.phasor_settings)
-            save_data.save_phasor_plot_condition(output_dir, self.shared_info.results_dict, self.shared_info.phasor_settings)
+            # Show the "Saving data..." progress dialog
+            progress_dialog = QProgressDialog("Saving data...", "", 0, 0, self.main_window)
+            progress_dialog.setWindowTitle("Saving Data")
+            progress_dialog.setWindowModality(Qt.WindowModal)
+            progress_dialog.setMinimumDuration(0)
+            progress_dialog.setCancelButton(None)
+            progress_dialog.show()
+
+            # Process events to ensure the dialog is shown
+            QApplication.processEvents()
+
+            # Add a small delay to ensure the dialog displays correctly
+            QTimer.singleShot(100, lambda: self._save_phasor_transparent(progress_dialog, output_dir))
         else:
             return
+
+    def _save_phasor_transparent(self, progress_dialog, output_dir):
+        # Save the phasor plot
+        try:
+            save_data.save_phasor_plot(output_dir, self.shared_info.results_dict, self.shared_info.phasor_settings)
+            save_data.save_phasor_plot_condition(output_dir, self.shared_info.results_dict, self.shared_info.phasor_settings)
+        finally:
+            # Close the progress dialog after saving is complete
+            progress_dialog.close()
     
     def save_csv(self):
         if not self.shared_info.results_dict:
@@ -392,6 +465,5 @@ class ConditionInputDialog(QDialog):
         
     def getCondition(self):
         return self.comboBox.currentText()
-
 
     

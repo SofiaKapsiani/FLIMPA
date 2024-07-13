@@ -9,3 +9,6 @@ __pycache__/
 build/
 dist/
 FLIMPA.spec
+
+# Ignore icon folder
+icon/

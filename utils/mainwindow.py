@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
                 break
 
         for i in range(self.ui_layout.tabs_widget.count()):
-            if self.ui_layout.tabs_widget.tabText(i) == "Parameters":
+            if self.ui_layout.tabs_widget.tabText(i) == "Lifetime values":
                 parameters_tab_index = i
                 break
 
@@ -113,7 +113,7 @@ class MainWindow(QMainWindow):
             tab_tau_table.setStyleSheet("QWidget { background-color: rgb(18, 18, 18); }")
             self.layout_tau_table = QVBoxLayout()
             tab_tau_table.setLayout(self.layout_tau_table)
-            self.ui_layout.tabs_widget.addTab(tab_tau_table, "Parameters")
+            self.ui_layout.tabs_widget.addTab(tab_tau_table, "Lifetime values")
 
             # Create a QTableWidget to display the DataFrame contents
             self.table_widget = QTableWidget()

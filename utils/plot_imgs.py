@@ -143,7 +143,7 @@ class PlotImages():
         colors = [(60/255, 162/255, 161/255, 0),  # fully transparent (for zero)
                 (60/255, 162/255, 161/255, 1)] # fully opaque (for non-zero) 
         cmap = LinearSegmentedColormap.from_list("custom_red", colors, N=2)
-        
+      
         masked_image_prepared = np.where(masked_image > 0, 0, 1)
         # Display the masked_image with the custom colormap
         ax.imshow(masked_image_prepared, cmap=cmap, alpha=0.35)
@@ -215,9 +215,12 @@ class PlotImages():
         elif n == 2:
             cols = 2
             image_size_inches = 1.3 * 1.8
-        else:
+        elif n == 3:
             cols = 3  # Desired columns
             image_size_inches = 1.3 * 1.28
+        else:
+            cols = 3  # Desired columns
+            image_size_inches = 1.3 * 1.22
         rows = int(np.ceil(n / cols))  # Calculate required rows
 
         # Calculate figure dimensions
@@ -294,9 +297,12 @@ class PlotImages():
         elif n == 2:
             cols = 2
             image_size_inches = 1.3 * 1.8
-        else:
+        elif n == 3:
             cols = 3  # Desired columns
             image_size_inches = 1.3 * 1.28
+        else:
+            cols = 3  # Desired columns
+            image_size_inches = 1.3 * 1.22
         rows = int(np.ceil(n / cols))  # Calculate required rows
 
         # Calculate figure dimensions
@@ -349,8 +355,6 @@ class PlotImages():
         fig_width = fig_width * self.dpi
         fig_height = fig_height * self.dpi
         self.canvas_gallery_I.setMinimumSize(fig_width, fig_height)
-
-
 
     
     def violin_plots(self):
