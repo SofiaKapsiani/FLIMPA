@@ -47,8 +47,8 @@ class ToolBarComponents:
         file_menu.addSeparator()
 
         # quit application
-        quit_action = file_menu.addAction("Quit")
-        quit_action.triggered.connect(self.quit_app)
+        #quit_action = file_menu.addAction("Quit")
+        #quit_action.triggered.connect(self.quit_app)
 
         file_menu = menu_bar.addMenu("&Reference")
         import_ref = file_menu.addAction("Import reference file")
@@ -72,6 +72,8 @@ class ToolBarComponents:
 
         save_phasor = file_menu.addAction("Save transparent phasor plot")
         save_phasor.triggered.connect(self.save_phasor_transparent)
+        save_violin = file_menu.addAction("Save transparent violin plot")
+        save_violin.triggered.connect(self.save_violin_transparent)
         file_menu.addSeparator()
         export_cv = file_menu.addAction("Export lifetime values table")
         export_cv.triggered.connect(self.save_csv)
@@ -427,6 +429,38 @@ class ToolBarComponents:
             # Close the progress dialog after saving is complete
             progress_dialog.close()
     
+    def save_violin_transparent(self):
+        if not self.shared_info.results_dict:
+            self.save_error_message("Error", "No data has been generated, please run phasor analysis first.")
+            return
+
+        output_dir = QFileDialog.getExistingDirectory(self.main_window, "Select the folder to save the violin plots")
+        print(output_dir)
+       
+        if output_dir:
+            # Prompt the user for the file name
+            text, ok = QInputDialog.getText(self.main_window, "Save File", "Enter file name:", QLineEdit.Normal, "violin_plots")
+            if ok and text:
+                file_name = text
+            else:
+                return
+            
+            progress_dialog = QProgressDialog("Saving data...", "", 0, 0, self.main_window)
+            progress_dialog.setWindowTitle("Saving Data")
+            progress_dialog.setWindowModality(Qt.WindowModal)
+            progress_dialog.setMinimumDuration(0)
+            progress_dialog.setCancelButton(None)
+            progress_dialog.show()
+
+            # Process events to ensure the dialog is shown
+            QApplication.processEvents()
+
+            # Add a small delay to ensure the dialog displays correctly
+            QTimer.singleShot(100, lambda: save_data.save_violin_plot(output_dir, progress_dialog, self.shared_info.config, self.shared_info.df_stats, file_name ))
+            
+        else:
+            return
+
     def save_csv(self):
         if not self.shared_info.results_dict:
             self.save_error_message("Error", "No data has been generated, please run phasor analysis first.")

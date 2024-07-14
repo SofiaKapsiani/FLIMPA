@@ -1,6 +1,7 @@
 import os
 from tifffile import imwrite
 import math
+import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import numpy as np
@@ -423,7 +424,7 @@ def save_phasor_plot_condition(output_dir, data_dict, phasor_settings):
             ax.contour(counts.transpose(), extent=[xbins[0], xbins[-1], ybins[0], ybins[-1]], linewidths=1, colors=[color])
             legend_handles.append(Patch(facecolor=color, edgecolor='black', label=condition))  # Correct label reference
         elif phasor_settings["scatter_type"] == "histogram":
-            ax.hist2d(g_scat, s_scat, bins=histo_bins, cmap='jet', norm=colors.LogNorm(), alpha=0.75)
+            ax.hist2d(g_scat, s_scat, bins=histo_bins, cmap='jet', norm=plt.colors.LogNorm(), alpha=0.75)
 
     # Using manual legend handles for contour plots
     if legend_handles:
@@ -434,18 +435,24 @@ def save_phasor_plot_condition(output_dir, data_dict, phasor_settings):
     plt.close(fig)
 
 
-def save_violin_plot(output_dir, config):
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    fig, ax = plt.subplots()
-    tau = config["tau_violin"]
-    sns.violinplot(y=tau, x="condition", data=df, ax=ax, saturation=1, inner='quartile', edgecolor='white', color='#121212')
-    sns.swarmplot(y=tau, x="condition", data=df, ax=ax, zorder=1, s=5, edgecolor='white', alpha=0.8, linewidth=1, palette="Set2")
-    ax.set(xlabel='Condition', ylabel='{} lifetime (ns)'.format(tau))
-    fig.tight_layout()
+def save_violin_plot(output_dir, progress_dialog, config, df, file_name):
+    try:
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        fig, ax = plt.subplots()
+        tau = config["tau_violin"]
+        sns.violinplot(y=tau, x="condition", data=df, ax=ax, saturation=1, inner='quartile', edgecolor='white', color='#121212')
+        sns.swarmplot(y=tau, x="condition", data=df, ax=ax, zorder=1, s=5, edgecolor='white', alpha=0.8, linewidth=1, palette="Set2")
+        ax.set(xlabel='Condition', ylabel='{} lifetime (ns)'.format(tau))
+        fig.tight_layout()
+        violin_path_png = os.path.join(output_dir, f"{file_name}_{tau}.png")
+        plt.savefig(violin_path_png, bbox_inches='tight', dpi=300, transparent=True)
+        plt.close(fig)
+    finally:
+        # Close the progress dialog after saving is complete
+        progress_dialog.close()
 
-    pass
 
 def save_df_csv(output_dir, df_stats):
     """
