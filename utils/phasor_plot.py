@@ -217,8 +217,8 @@ class PhasorPlot(QWidget):
     def toggle_roi(self):
         if self.toolbar.mode == 'zoom rect':
             self.toolbar.zoom()  # This toggles the zoom mode off if it's on
-        if self.toolbar.mode == 'pan/zoom':
-            self.toolbar.pan()  # This toggles the pan mode off if it's on
+        #if self.toolbar.mode == 'pan/zoom':
+            #self.toolbar.pan()  # This toggles the pan mode off if it's on
 
         if self.selector is None:
             # Recreate the selector to associate it with the current axes
@@ -526,4 +526,4 @@ class LegendWidget(QListWidget):
 class NavigationToolbar(NavigationToolbar2QT):
     # only display the buttons we need
     toolitems = [t for t in NavigationToolbar2QT.toolitems if
-                 t[0] in ('Home', 'Back', 'Forward', 'Zoom', 'Pan', 'Save')] # 'Customize', 'Pan'
+                 t[0] in ('Home', 'Back', 'Forward', 'Zoom', 'Save')] # 'Customize', 'Pan'

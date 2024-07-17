@@ -27,7 +27,7 @@ class ToolBarComponents:
         self.data_condition = "None"
 
         # file option
-        file_menu = menu_bar.addMenu("&File")
+        file_menu = menu_bar.addMenu("&Load data")
         menu_bar.setStyleSheet("""
                                QMenuBar::item {color: rgb(255,255,255);}
                                """)
@@ -394,7 +394,7 @@ class ToolBarComponents:
             QApplication.processEvents()
 
             # Add a small delay to ensure the dialog displays correctly
-            QTimer.singleShot(100, lambda: save_data.save_intensity_images(output_dir, progress_dialog, self.shared_info.intensity_img_dict, self.shared_info.raw_data_dict))
+            QTimer.singleShot(100, lambda: save_data.save_intensity_images(output_dir, progress_dialog, self.shared_info.intensity_img_dict, self.shared_info.raw_data_dict, self.shared_info.config))
             
         else:
             return

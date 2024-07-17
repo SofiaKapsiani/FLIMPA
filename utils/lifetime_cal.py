@@ -343,7 +343,7 @@ class LifetimeData(QObject):
                     continue  # Skip this file if it is already processed
 
                 if file_info['analyse'] == 'yes':
-                    print(f"analysing {filename}") 
+                    #print(f"analysing {filename}") 
                     # Emit progress signal
                     processed_files += 1
                     progress_percentage = int((processed_files / total_files) * 100)

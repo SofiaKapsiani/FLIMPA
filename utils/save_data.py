@@ -175,7 +175,7 @@ def save_gallery_view(output_dir, progress_dialog, file_name, data_dict, config)
 
 
 
-def save_intensity_images(output_dir, progress_dialog, intensity_img_dict, raw_data_dict):
+def save_intensity_images(output_dir, progress_dialog, intensity_img_dict, raw_data_dict, config):
     """
     Save the intensity images as .tif and .png files in a specified directory.
     
@@ -212,12 +212,12 @@ def save_intensity_images(output_dir, progress_dialog, intensity_img_dict, raw_d
                 image = np.where(masked_image == 0, 0, image)
                 if mask_arr is not None:
                     image = np.where(mask_arr == 0, 0, image)
-                img_plot = ax.imshow(image, cmap='gray')
+                img_plot = ax.imshow(image, cmap='gray', vmin=config["vmin_int"], vmax=config["vmax_int"])
 
                 # Create a colorbar with a fixed aspect ratio that matches the image's aspect ratio
                 divider = make_axes_locatable(ax)
                 cax = divider.append_axes("right", size="5%", pad=0.1)
-                cbar = fig.colorbar(img_plot, cax=cax, orientation='vertical')
+                cbar = fig.colorbar(img_plot, cax=cax, orientation='vertical',)
                 cbar.ax.tick_params(colors='black', labelsize=8)
 
                 ax.patch.set_facecolor((0, 0, 0, 1.0))
