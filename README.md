@@ -7,5 +7,4 @@ An open-sourced software for phasor plot analyis of TCSPC-FLIM data, built using
 
 
 
-https://github.com/user-attachments/assets/5ae8b884-f179-437f-bc94-9c88bd27ce95
-
+![intro_gif](https://github.com/user-attachments/assets/29e7e1b6-820c-4dcf-a1ac-674f7d70acbf)
