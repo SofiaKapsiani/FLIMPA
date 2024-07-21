@@ -6,5 +6,10 @@
 An open-sourced software for phasor plot analyis of TCSPC-FLIM data, built using PySide6.
 
 
-
 ![intro_gif](https://github.com/user-attachments/assets/29e7e1b6-820c-4dcf-a1ac-674f7d70acbf)
+
+# Import data
+![import](https://github.com/user-attachments/assets/380eebb2-62ef-44f8-9878-640b0b3246c9)
+
+# Viusalisation options
+![scatter_gif](https://github.com/user-attachments/assets/ae1438c3-93e6-4340-8476-9cadb0ccf8cb)
