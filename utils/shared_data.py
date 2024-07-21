@@ -44,12 +44,12 @@ class SharedData:
         ref_lifetime: 4
 
         subtract_offset: True # set True to calculate the intensity offset (baseline)
-        # of FLIM data according to the first "num_offset" data points
-        # of a decay curve, and subtract this number from all time bins in
-        # the decay curve (the negative values in the results will be changed to 0).
+        # assumption that first time bins contain only the background signal 
+        # calculate average of first time bins and substract them from the rest of the time points
+        # as data from different sources may have different number of time bins, provide a fraction 
         subtract_offsetRef: True # DEFAULT: choose True to compensate intensity offset for reference data
-        num_offset: 9 
-        mask_samples: False # choose False to mask by intensity or 1 for import of .tif mask 
+        fraction_offset: 0.035 # assumption that 3.5 precent of the first time bins are background signal
+        mask_samples: False # choose False to mask by intensity or True for import of .tif mask 
 
         vmin_int: 0
         vmax_int: 1000

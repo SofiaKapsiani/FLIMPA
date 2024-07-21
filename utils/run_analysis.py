@@ -90,5 +90,7 @@ class Analysis:
         self.shared_info.results_dict = results_dict
         try:
             self.main_window.analysis_finished()  # Call the main window's analysis_finished method
-        except AttributeError as e:
-            show_error_message(self.main_window, "Analysis Error", f"An unexpected error occurred during analysis: {e}")
+        except:
+            self.cancel_analysis()
+        #except AttributeError as e:
+            #show_error_message(self.main_window, "Analysis Error", f"An unexpected error occurred during analysis: {e}")

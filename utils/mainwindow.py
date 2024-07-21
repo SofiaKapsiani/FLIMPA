@@ -196,7 +196,7 @@ class MainWindow(QMainWindow):
             self.phasor_componets.plot_phasor_coordinates(cmap="gist_rainbow_r")
 
         elif self.ui_layout.tabs_widget.tabText(index) == "Gallery (tau)":
-            print(f"Plot type updated to: {self.shared_info.phasor_settings['plot_type']}")
+            #print(f"Plot type updated to: {self.shared_info.phasor_settings['plot_type']}")
             if self.shared_info.phasor_settings["plot_type"] == "individual":
                 self.phasor_componets.plot_phasor_gallery_individual(data_dict=self.shared_info.results_dict)
             elif self.shared_info.phasor_settings["plot_type"] == "condition":

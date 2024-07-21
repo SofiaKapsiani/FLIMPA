@@ -127,6 +127,7 @@ class ToolBarComponents:
                     progress_dialog.setLabelText(f"Loading file {i+1} of {len(fnames)}")
                     QApplication.processEvents()  # Process events to keep the UI responsive
 
+                    print(fname)
                     # Assuming you have a mechanism to process and display each file
                     data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname)
 
@@ -251,9 +252,6 @@ class ToolBarComponents:
         
         ref_data,t_series = LifetimeData(self.main_window, self.app).load_irf(fname)
         filename = fname.split('/')[-1].split('\\')[-1].split(".")[0]
-        # updated reference bins based on time channels of reference file
-        print(ref_data.shape, t_series.shape)
-        print(t_series)
 
         self.shared_info.ref_files_dict[filename] = {"ref_data":ref_data, "t_series":t_series, "bins_ref" : 1}  # Assuming you want to store the full path
         self.main_window.parameters_data.update_ref_file(list(self.shared_info.ref_files_dict.keys()))

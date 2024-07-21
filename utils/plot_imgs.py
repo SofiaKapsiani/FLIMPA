@@ -8,6 +8,11 @@ from scipy.ndimage import measurements
 import seaborn as sns
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from utils.shared_data import SharedData 
+import warnings
+
+# Suppress specific warnings
+warnings.filterwarnings("ignore", category=FutureWarning, message=".*palette.*without assigning.*hue.*is deprecated.*")
+warnings.filterwarnings("ignore", message=".*The figure layout has changed to tight.*")
 
 class PlotImages():
 
@@ -343,9 +348,6 @@ class PlotImages():
             label.set_color('white')  # Color the tick labels white
         cbar.ax.set_xlabel(cbar.ax.get_xlabel(), color='white')  # Set colorbar label color to white, if you have set a label
 
-        # Adjust layout to include padding for colorbar ticks and labels
-        self.figure_gallery_I.subplots_adjust(bottom=0.15)
-
         self.canvas_gallery_I.draw_idle()  # Refresh the canvas
         self.canvas_gallery_I.resize(fig_width * self.dpi,
                                     fig_height * self.dpi)
@@ -371,7 +373,8 @@ class PlotImages():
         ax.set_facecolor(dark_gray)
 
         sns.violinplot(y=tau, x="condition", data=df, ax=ax, saturation=1, inner='quartile', edgecolor='white', color='#121212')
-        sns.swarmplot(y=tau, x="condition", data=df, ax=ax, zorder=1, s=5, edgecolor='white', alpha=0.8, linewidth=1, palette="Set2")
+        sns.swarmplot(y=tau, x="condition",  hue = 'condition', data=df, ax=ax, zorder=1, s=5, legend=False,
+                      edgecolor='white', alpha=0.8, linewidth=1, palette="Set2")
         ax.set(xlabel='Condition', ylabel='{} lifetime (ns)'.format(tau))
 
         # Set text colors to white
