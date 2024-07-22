@@ -11,7 +11,8 @@ To run the software, you can download the executable (.exe) file here.
 
 > **FLIMPA: An open-source software for Fluorescence Lifetime Imaging Microscopy Phasor plot Analysis**          
 > Sofia Kapsiani     
-> [Molecular Neuroscience Group, University of Cambridge](https://www.ceb-mng.org/)
+> <a href="https://www.ceb-mng.org/" target="_blank">Molecular Neuroscience Group, University of Cambridge</a>
+
 
 ##  Features
 
