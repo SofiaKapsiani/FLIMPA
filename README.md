@@ -50,3 +50,24 @@ The software can be easily run on Windows using the .exe file. Alternatively, yo
     ```bash
     python main.py
     ```
+
+# Usage
+
+## Importing Data
+
+FLIMPA currently accepts  `.std`,  `.ptu`, and  `.tif` file formats for phasor plot analysis. To ensure accurate results, a reference file with a known lifetime (such as a sample of Rhodamine 6G or Erythrosin B) is required to correct for instrumental errors.
+
+The software can be tested using the  `.std` files provided in the  `sample_data` folder. These sample data were used in our publication and involve COS-7 cells stained with SiR-tubulin, treated with 40 µM of Nocodazole. Control data are also included, consisting of images of untreated cells.
+
+There are three different options for importing the data:
+
+-	Import raw data
+-	Import raw data and assign experimental conditions (e.g treated vs untreated)
+-	Import raw data with manually created masks (currently masks should be created using different software for example FLIMFit)
+
+*Example: Importing Raw Data and Assigning Experimental Conditions*
+
+  ![import](https://github.com/user-attachments/assets/f7042764-3796-4ca1-ad2f-a277d272c078)
+
+
+Please note that FLIMPA currently only accepts single files and does not support the analysis of time-lapse data.
