@@ -7,7 +7,8 @@
 **FLIMPA** is an open-source software designed for the phasor plot analysis of raw Time-Correlated Single Photon Counting (TCSPC) Fluorescence Lifetime Imaging Microscopy (FLIM) data.
 Developed in Python, it offers an intuitive graphical user interface (GUI) for the analysis and visualisation of FLIM data.
 
-To run the software, you can download the executable (.exe) file here.
+To run the software, you can download the executable (.exe) file <a href="https://drive.google.com/file/d/1atLv3elqGi2KvFZyC2-utXOwVqM7nwBP/view" title="here" download>here</a>
+. Please note, the .exe file currently runs only on Windows. 
 
 > **FLIMPA: An open-source software for Fluorescence Lifetime Imaging Microscopy Phasor plot Analysis**          
 > Sofia Kapsiani     
@@ -27,7 +28,7 @@ To run the software, you can download the executable (.exe) file here.
 
 # Installation
 
-FLIMPA can be easily run on Windows using the .exe file. Alternatively, you can clone the GitHub repository and run the software following these steps:
+FLIMPA can be easily run on Windows using the <a href="https://drive.google.com/file/d/1atLv3elqGi2KvFZyC2-utXOwVqM7nwBP/view" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
 
 1. **Download the repository**
     ```bash
