@@ -2,6 +2,7 @@
   <img src="https://github.com/user-attachments/assets/5ec8fe13-b097-4274-88fb-25c60c28637c" alt="icon_filimpa" width="550" height="300">
 </div>
 
+
 # Project background
 
 **FLIMPA** is an open-source software designed for the phasor plot analysis of raw Time-Correlated Single Photon Counting (TCSPC) Fluorescence Lifetime Imaging Microscopy (FLIM) data.
@@ -23,7 +24,9 @@ To run the software, you can download the executable (.exe) file <a href="https:
 - Gallery plotting of fluorescence lifetime and intensity maps
 - Violin plot visualisation
 
-  ![intro_gif](https://github.com/user-attachments/assets/29e7e1b6-820c-4dcf-a1ac-674f7d70acbf)
+
+  ![overview](https://github.com/user-attachments/assets/60722b16-39ea-4dcd-b472-00ec8990f616)
+
 
 
 # Installation
@@ -91,9 +94,7 @@ To run the phasor plot analysis, the following parameters need to be specified:
 ## Phasor Plot Visualisation 
 FLIMPA enables to visualisation of phasor plots from single images and combined plots from multiple samples.  Additionally three different phasor visualisation options: `scatter` plots, `histograms` and `contour` maps.
 
-
-![scatter](https://github.com/user-attachments/assets/69353c4c-ee34-4924-9bc5-caa5a693a82d)
-
+![scatter](https://github.com/user-attachments/assets/4f108cd6-a10c-4551-bd65-6d9abb356efd)
 
 ## Saving Data
 
@@ -105,7 +106,8 @@ FLIMPA also allows users to export all generated data. This includes:
 - **Statistical Data:** A `.csv` file containing the mean fluorescence lifetime per image can be exported for further statistical analysis.
 
 
-![saving_data](https://github.com/user-attachments/assets/cedc1c99-7b7a-497d-b937-6d9af97345ab)
+![save-73](https://github.com/user-attachments/assets/7747372c-e5de-40ae-8f2b-1ba320f0418a)
+
 
 # Citation
 
