@@ -121,6 +121,7 @@ class PlotImages():
 
         # Display the image on the axes
         img_plot = ax.imshow(intensity_image, cmap='gray')
+        ax.set_title(self.shared_info.config["selected_file"], color='white', fontsize=10)
 
         # Adjust colorbar size to match the image
         # Create a colorbar with a fixed aspect ratio that matches the image's aspect ratio
@@ -173,6 +174,7 @@ class PlotImages():
         # Display the image on the axes
         img_plot = ax.imshow(tau_img, cmap='gist_rainbow_r', 
                              vmin=float(self.shared_info.config["lifetime_vmin"]), vmax=float(self.shared_info.config["lifetime_vmax"]))
+        ax.set_title(self.shared_info.config["selected_file"], color='white', fontsize=10)
         
         # optional: integrate lifetime image with intensity image
         if self.shared_info.config["lifetime_itegrate"] == "True":

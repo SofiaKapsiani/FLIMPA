@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QMessageBox
 
 class UnsupportedFileFormatError(Exception):
     """Exception raised for unsupported file formats."""
-    def __init__(self, message="Only .sdt or .ptu file formats are currently supported."):
+    def __init__(self, message="Only .sdt, .ptu or .tif file formats are currently supported."):
         self.message = message
         super().__init__(self.message)
 

@@ -35,7 +35,7 @@ class SharedData:
         # Embedded YAML content as a string
         config_content = """
         frequency: 40 # frequency in MHz
-        min_photons: 200 # threshold for minimum photon counts for the FLIM image
+        min_photons: 0 # threshold for minimum photon counts for the FLIM image
         max_photons: 1000000 # threshold for maximum photon counts for the FLIM image
 
         bins: "3x3" # binning value for data. Can only be any odd number or 256.

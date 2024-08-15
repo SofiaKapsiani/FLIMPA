@@ -75,7 +75,7 @@ def save_tau(output_dir, progress_dialog,  lifetime_type, results_dict, config):
                     ax.imshow(masked_image_prepared, cmap=cmap, alpha=0.8)
                 
                 # Save the figure
-                plt.savefig(path, bbox_inches='tight', dpi=300)
+                plt.savefig(path, bbox_inches='tight', dpi=72)
                 plt.close(fig)
             
             # Save the selected lifetime data as PNG
@@ -223,7 +223,7 @@ def save_intensity_images(output_dir, progress_dialog, intensity_img_dict, raw_d
                 ax.patch.set_facecolor((0, 0, 0, 1.0))
                 
                 # Save the figure
-                plt.savefig(path, bbox_inches='tight', dpi=300, )
+                plt.savefig(path, bbox_inches='tight', dpi=72, )
                 plt.close(fig)
             
             # Save the intensity image as PNG
@@ -442,8 +442,8 @@ def save_violin_plot(output_dir, progress_dialog, config, df, file_name):
         
         fig, ax = plt.subplots()
         tau = config["tau_violin"]
-        sns.violinplot(y=tau, x="condition", data=df, ax=ax, saturation=1, inner='quartile', edgecolor='white', color='#121212')
-        sns.swarmplot(y=tau, x="condition", data=df, ax=ax, zorder=1, s=5, edgecolor='white', alpha=0.8, linewidth=1, palette="Set2")
+        sns.violinplot(y=tau, x="condition", data=df, ax=ax, saturation=1, inner='quartile', color='white')
+        sns.swarmplot(y=tau, x="condition", data=df, ax=ax, zorder=1, s=6, edgecolor='#000000', alpha=0.8, linewidth=1, palette="Set2")
         ax.set(xlabel='Condition', ylabel='{} lifetime (ns)'.format(tau))
         fig.tight_layout()
         violin_path_png = os.path.join(output_dir, f"{file_name}_{tau}.png")

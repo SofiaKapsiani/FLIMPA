@@ -127,7 +127,6 @@ class ToolBarComponents:
                     progress_dialog.setLabelText(f"Loading file {i+1} of {len(fnames)}")
                     QApplication.processEvents()  # Process events to keep the UI responsive
 
-                    print(fname)
                     # Assuming you have a mechanism to process and display each file
                     data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname)
 
