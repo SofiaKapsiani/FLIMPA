@@ -36,14 +36,14 @@ FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaK
 
 1. **Download the repository**
     ```bash
-    git clone https://github.com/your-username/phasor-plot-analysis.git
-    cd phasor-plot-analysis
+    git clone https://github.com/SofiaKapsiani/FLIMPA.git
+    cd FLIMPA
     ```
 
 2. **Create and activate a virtual environment**
     ```bash
-    conda create --name f_env python=3.11 -y
-    conda activate f_env
+    conda create --name flimpa_env python=3.11 -y
+    conda activate flimpa_env
     ```
 
 3. **Install the required packages**
