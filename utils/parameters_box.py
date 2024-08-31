@@ -87,6 +87,10 @@ class ParameterWidgets():
         grid_parameters.addLayout(self.parameter_input(param_name="Max. photon counts", param_id="max_photons"), 1, 1)
         grid_parameters.addLayout(self.parameter_input(param_name="Reference file", input_type="combobox", items=["None"], param_id="ref_file"), 1, 0)
         grid_parameters.addLayout(self.parameter_input(param_name="Reference lifetime (ns)", param_id="ref_lifetime"), 2, 0)
+<<<<<<< HEAD
         grid_parameters.addLayout(self.parameter_input(param_name="Number of bins", input_type="combobox", items=["3x3", "7x7", "9x9", "12x12", "None"], param_id="bins"), 2, 1)
+=======
+        grid_parameters.addLayout(self.parameter_input(param_name="Number of bins", input_type="combobox", items=["3x3", "7x7", "9x9", "None"], param_id="bins"), 2, 1)
+>>>>>>> 8cfa95873ba4622d1b04ba35a440ac5c67ac4568
 
         return grid_parameters

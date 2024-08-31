@@ -196,17 +196,24 @@ def save_intensity_images(output_dir, progress_dialog, intensity_img_dict, raw_d
             intensity_image = intensity_img_dict[filename]['intensity_image']
             masked_image = intensity_img_dict[filename]['mask']
             mask_arr = raw_data_dict[filename]['mask_arr']
+<<<<<<< HEAD
 
             image = np.where(masked_image == 0, 0, intensity_image)
             if mask_arr is not None:
                 image = np.where(mask_arr == 0, 0, image)
+=======
+>>>>>>> 8cfa95873ba4622d1b04ba35a440ac5c67ac4568
             
             # Define the file paths
             intensity_path_tif = os.path.join(output_dir, f"{filename}_intensity_raw.tif")
             intensity_path_png = os.path.join(output_dir, f"{filename}_intensity.png")
             
             # Save the intensity image as .tif file
+<<<<<<< HEAD
             imwrite(intensity_path_tif, image)
+=======
+            imwrite(intensity_path_tif, intensity_image)
+>>>>>>> 8cfa95873ba4622d1b04ba35a440ac5c67ac4568
             
             # Function to save the intensity image as PNG
             def save_as_png(image, path, masked_image):
