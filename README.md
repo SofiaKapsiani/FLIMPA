@@ -8,12 +8,13 @@
 **FLIMPA** is an open-source software designed for the phasor plot analysis of raw Time-Correlated Single Photon Counting (TCSPC) Fluorescence Lifetime Imaging Microscopy (FLIM) data.
 Developed in Python, it offers an intuitive graphical user interface (GUI) for the analysis and visualisation of FLIM data.
 
-To run the software, you can download the executable (.exe) file <a href="https://drive.google.com/file/d/1atLv3elqGi2KvFZyC2-utXOwVqM7nwBP/view" title="here" download>here</a>
-. Please note, the .exe file currently runs only on Windows. 
+To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.0" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
 
-> **FLIMPA: An open-source software for Fluorescence Lifetime Imaging Microscopy Phasor plot Analysis**          
-> Sofia Kapsiani     
-> <a href="https://www.ceb-mng.org/" target="_blank">Molecular Neuroscience Group, University of Cambridge</a>
+> **FLIMPA: An accessible software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis**          
+> Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Clemens F. Kaminski, Gabriele S. Kaminski Schierle    
+> <a href="https://www.ceb-mng.org/" target="_blank">Molecular Neuroscience Group</a> and <a href="https://laser.ceb.cam.ac.uk/" target="_blank">Laser Analytics Group</a> (University of Cambridge)
+> 
+[[`FLIMPA (1.0)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.0)] [[`user manual`](https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing)] [[`arxiv`](arxiv_link)]  [[`bibtex`](citation)]
 
 
 ##  Features
@@ -31,18 +32,18 @@ To run the software, you can download the executable (.exe) file <a href="https:
 
 # Installation
 
-FLIMPA can be easily run on Windows using the <a href="https://drive.google.com/file/d/1atLv3elqGi2KvFZyC2-utXOwVqM7nwBP/view" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
+FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.0" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
 
 1. **Download the repository**
     ```bash
-    git clone https://github.com/your-username/phasor-plot-analysis.git
-    cd phasor-plot-analysis
+    git clone https://github.com/SofiaKapsiani/FLIMPA.git
+    cd FLIMPA
     ```
 
 2. **Create and activate a virtual environment**
     ```bash
-    conda create --name f_env python=3.11 -y
-    conda activate f_env
+    conda create --name flimpa_env python=3.11 -y
+    conda activate flimpa_env
     ```
 
 3. **Install the required packages**
@@ -56,6 +57,8 @@ FLIMPA can be easily run on Windows using the <a href="https://drive.google.com/
     ```
 
 # Usage
+
+For detailed information please refer to our <a href="https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing" target="_blank">online user manual</a>.
 
 ## Importing Data
 
