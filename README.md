@@ -11,7 +11,7 @@ Developed in Python, it offers an intuitive graphical user interface (GUI) for t
 To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.0" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
 
 > **FLIMPA: An accessible software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis**          
-> Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Clemens F. Kaminski, Gabriele S. Kaminski Schierle    
+> Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Mona Shehata, Clemens F. Kaminski, Gabriele S. Kaminski Schierle    
 > <a href="https://www.ceb-mng.org/" target="_blank">Molecular Neuroscience Group</a> and <a href="https://laser.ceb.cam.ac.uk/" target="_blank">Laser Analytics Group</a> (University of Cambridge)
 > 
 [[`FLIMPA (1.0)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.0)] [[`user manual`](https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing)] [[`arxiv`](arxiv_link)]  [[`bibtex`](citation)]
