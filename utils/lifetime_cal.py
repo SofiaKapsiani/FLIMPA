@@ -305,11 +305,8 @@ class LifetimeData(QObject):
             data_bins = 7
         elif self.shared_info.config["bins"] == "9x9":
             data_bins = 9
-<<<<<<< HEAD
         elif self.shared_info.config["bins"] == "12x12":
             data_bins = 12
-=======
->>>>>>> 8cfa95873ba4622d1b04ba35a440ac5c67ac4568
         
         return data_bins
 
