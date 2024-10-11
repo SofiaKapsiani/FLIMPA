@@ -64,6 +64,15 @@ For detailed information please refer to our <a href="https://docs.google.com/pr
 
 FLIMPA currently accepts  `.sdt`,  `.ptu`, and  `.tif` file formats for phasor plot analysis. To ensure accurate results, a reference file with a known lifetime (such as a sample of Rhodamine 6G or Erythrosin B) is required to correct for instrumental errors.
 
+> *Importing `.tif` files*<br>
+>
+> Please ensure that your `.tif` data is in the format `(time, x, y)`. When loading your data, you will be prompted to enter the **bin width** (in nanoseconds), which is essential for accurate analysis.
+>
+> If the exact bin width is unknown, FLIMPA provides an **estimate** option, calculated as:<br>
+> ```(1 / (Instrument Frequency (in Hz) * Number of Bins)) * 10^9 ```<br>
+> However, this estimate may be inaccurate depending on your data acquisition settings.
+
+
 The software can be tested using the  `.sdt` files provided in the  `sample_data` folder. These sample data were used in our publication and involve COS-7 cells stained with SiR-tubulin, treated with 40 µM of Nocodazole. Control data are also included, consisting of images of untreated cells.
 
 There are three different options for importing the data:
