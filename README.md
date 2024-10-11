@@ -66,7 +66,7 @@ FLIMPA currently accepts  `.sdt`,  `.ptu`, and  `.tif` file formats for phasor p
 
 > *Importing `.tif` files*<br>
 >
-> Please ensure that your `.tif` data is in the format `(time, x, y)`. When loading your data, you will be prompted to enter the **bin width** (in nanoseconds), which is essential for accurate analysis.
+> Please ensure that your `.tif` data is in the format `(time, x, y)`. When loading your data, you will be prompted to enter the ```bin width``` (in nanoseconds), which is essential for accurate analysis.
 >
 > If the exact bin width is unknown, FLIMPA provides an **estimate** option, calculated as:<br>
 > ```(1 / (Instrument Frequency (in Hz) * Number of Bins)) * 10^9 ```<br>
