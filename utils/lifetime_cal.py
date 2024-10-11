@@ -39,7 +39,7 @@ class LifetimeData(QObject):
 
 
     # --- Image loading and lifetime calculation --- #
-    def load_raw_data(self, file_name):
+    def load_raw_data(self, file_name, bin_width):
         """Function for loading raw data files."""
         try:
             if file_name.endswith('.sdt'):
@@ -62,11 +62,7 @@ class LifetimeData(QObject):
                         items, 0, False)
                     self.shared_info.ptu_channel = items.index(item)
                     if not ok:
-                        raise DataProcessingError("Channel selection cancelled by user.")
-                
-                
-        
-        
+                        raise DataProcessingError("Channel selection cancelled by user.")     
         
                 data = ptu[:, ..., self.shared_info.ptu_channel, :].sum(0)
                 # re-arrange channels to time-channels (change of intensity with time) and x-coordinate, y-coordinate (matches FLIMFit img)
@@ -77,9 +73,13 @@ class LifetimeData(QObject):
             elif file_name.endswith('.tiff') or file_name.endswith('.tif'):
                 data = imread(file_name)
                 data = data.squeeze()
-                t_series = []
-                #t_resolution = 1 / (self.frequency * data.shape[0])
-                #t_series = np.asarray([i * t_resolution for i in range(data.shape[0])], dtype =np.float32)
+                if bin_width != None:
+                    if bin_width == "estimate":
+                        t_series = []
+                    else:
+                        t_series = np.asarray([i*10**(-9) * bin_width for i in range(data.shape[0])], dtype =np.float32)
+                else:
+                    raise UnsupportedFileFormatError()
 
             else:
                 raise UnsupportedFileFormatError()
@@ -103,7 +103,7 @@ class LifetimeData(QObject):
             show_error_message(self.main_window, "Loading Error", f"An unexpected error occurred while loading the file: {e}")
             raise FileLoadingError(f"Error loading file '{file_name}': {e}")
         
-    def load_irf(self, file_name):
+    def load_irf(self, file_name, bin_width):
         try:
             if file_name.endswith('.sdt'):
                 sdt_file = sdt.SdtFile(file_name)
@@ -147,7 +147,13 @@ class LifetimeData(QObject):
                 data = data.reshape((data.shape[0], 1, 1)).astype(np.float32)
 
                 # Calculate time series
-                t_series = []
+                if bin_width != None:
+                    if bin_width == "estimate":
+                        t_series = []
+                    else:
+                        t_series = np.asarray([i*10**(-9) * bin_width for i in range(data.shape[0])], dtype =np.float32)
+                else:
+                    raise UnsupportedFileFormatError()
             
             else:
                 raise UnsupportedFileFormatError("Only .sdt and .csv file formats are supported for IRF data.")
@@ -265,6 +271,7 @@ class LifetimeData(QObject):
             t_resolution = 1 / ( freq* ref_data.shape[0])
             t_series = np.asarray([i * t_resolution for i in range(ref_data.shape[0])], dtype =np.float32)
             self.shared_info.ref_files_dict[self.ref_filename]['t_series'] = t_series
+            print("bind width estimated as:", t_resolution*10**9, "ns")
         
         # calculate reference g and s coordinates
         ref_g, ref_s, _, _ = self.calc_Coordinates( data=ref_data, t_series=t_series, bins =bins_ref, min_photons=0, max_photons_t = False, mode_same = False)
@@ -324,6 +331,7 @@ class LifetimeData(QObject):
             t_resolution = 1 / ( freq* raw_data.shape[0])
             t_series = np.asarray([i * t_resolution for i in range(raw_data.shape[0])], dtype =np.float32)
             self.shared_info.raw_data_dict[filename]['t_series'] = t_series
+            print("bind width estimated as:", t_resolution*10**9, "ns")
   
         # analyse manually masked data if availabe
         if mask_data is not None:

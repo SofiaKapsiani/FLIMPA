@@ -1,5 +1,6 @@
-from PySide6.QtWidgets import (QStatusBar, QMenuBar, QFileDialog, QInputDialog, QFileDialog, QLineEdit,
+from PySide6.QtWidgets import (QStatusBar, QMenuBar, QFileDialog, QInputDialog, QFileDialog, QLineEdit, QLabel,QPushButton,
                                QProgressDialog, QApplication, QMessageBox, QComboBox, QVBoxLayout, QDialogButtonBox, QDialog)
+from PySide6.QtGui import QDoubleValidator
 
 from PySide6.QtCore import Qt, QTimer
 import numpy as np
@@ -98,7 +99,55 @@ class ToolBarComponents:
             if condition:
                 self.data_condition = condition
                 fnames = self.file_manager()
+
+    def get_float_input(self):
+        dialog = QDialog(self.main_window)
+        dialog.setWindowTitle("Input Required")
+
+        layout = QVBoxLayout(dialog)
+
+        label = QLabel("Enter the bin width (in ns):", dialog)
+        layout.addWidget(label)
+
+        # Create a QLineEdit and set a QDoubleValidator for non-negative values and many decimal places
+        line_edit = QLineEdit(dialog)
+        validator = QDoubleValidator(0.0, 2.0, 50)  # Non-negative range, 10 decimal places
+        validator.setNotation(QDoubleValidator.StandardNotation)
+        line_edit.setValidator(validator)
+        layout.addWidget(line_edit)
+
+        # Create an "Estimate" button
+        estimate_button = QPushButton("Estimate", dialog)
+        layout.addWidget(estimate_button)
+
+        # Create dialog buttons (OK and Cancel)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
+        layout.addWidget(buttons)
+
+        # Connect signals
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+
+        def estimate_bin_width():
+            # Set the bin width to "estimate"
+            line_edit.setText("estimate")
+            # Show a warning message
+            QMessageBox.warning(dialog, "Warning", 
+                "You have selected 'estimate' for the bin width. This will be calculated as:\n"
+                "bin width = 1 / (laser repetition rate × bin number).\n\n"
+                "Please note that this estimation may lead to inaccurate results depending on your data acquisition settings. "
+                "Please ensure that your laser settings and detection conditions are suitable for this calculation.")
             
+        estimate_button.clicked.connect(estimate_bin_width)
+
+        if dialog.exec() == QDialog.Accepted:
+            # Check if user selected "estimate"
+            if line_edit.text() == "estimate":
+                return "estimate", True
+            else:
+                return float(line_edit.text()), True
+        else:
+            return None, False
             
         
     def file_manager(self):
@@ -106,7 +155,7 @@ class ToolBarComponents:
         fnames, _ = QFileDialog.getOpenFileNames(self.main_window, "Select one or more files to open")  # Adjust the title as needed
         if not fnames:
             return  # Cancel if no files are selected
-        
+
         # channel used when loading .ptu files
         self.shared_info.ptu_channel = None
 
@@ -119,6 +168,8 @@ class ToolBarComponents:
         progress_dialog.setCancelButton(None)
         #progress_dialog.setWindowFlag(Qt.WindowCloseButtonHint, False)
 
+        bin_width = None  # Initialize bin_width variable to store the user input
+
         try:
             for i, fname in enumerate(fnames):  # Iterate through the selected files
                 if fname:
@@ -127,8 +178,15 @@ class ToolBarComponents:
                     progress_dialog.setLabelText(f"Loading file {i+1} of {len(fnames)}")
                     QApplication.processEvents()  # Process events to keep the UI responsive
 
+                    # Check if the file is a .tif or .tiff and if bin_width is already set
+                    if fname.lower().endswith(('.tif', '.tiff')) and bin_width is None:
+                        # Prompt the user for bin_width only once
+                        bin_width, ok = self.get_float_input()
+                        if not ok or bin_width is None:
+                            break  # If the user cancels or no valid input, exit
+
                     # Assuming you have a mechanism to process and display each file
-                    data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname)
+                    data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width)
 
                     filename = fname.split('/')[-1].split('\\')[-1].split(".")[0]
                     # check if entry is duplicate and if so rename it
@@ -154,6 +212,7 @@ class ToolBarComponents:
         self.data_condition = "None"
         return fnames
 
+
     def load_masks(self):
         # Select one or more files to open
         fnames, _ = QFileDialog.getOpenFileNames(self.main_window, "Select one or more files to open")
@@ -175,6 +234,7 @@ class ToolBarComponents:
         # Disable the close button and remove the cancel button
         progress_dialog.setCancelButton(None)
         #progress_dialog.setWindowFlag(Qt.WindowCloseButtonHint, False)
+        bin_width = None  # Initialize bin_width variable to store the user input
 
         try:
             for i, fname in enumerate(fnames):  # Iterate through the selected files
@@ -184,8 +244,15 @@ class ToolBarComponents:
                     progress_dialog.setLabelText(f"Loading file {i+1} of {len(fnames)}")
                     QApplication.processEvents()  # Process events to keep the UI responsive
 
+                    # Check if the file is a .tif or .tiff and if bin_width is already set
+                    if fname.lower().endswith(('.tif', '.tiff')) and bin_width is None:
+                        # Prompt the user for bin_width only once
+                        bin_width, ok = self.get_float_input()
+                        if not ok or bin_width is None:
+                            break  # If the user cancels or no valid input, exit
+                        
                     # Assuming you have a mechanism to process and display each file
-                    data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname)
+                    data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width)
                     
                     filename_original = fname.split('/')[-1].split('\\')[-1].split(".")[0]
                     masked_data, mask_arr = LifetimeData(self.main_window, self.app).mask_data(masks_dir, filename_original, data)
@@ -225,8 +292,6 @@ class ToolBarComponents:
                 self.data_condition = condition
                 fnames = self.load_masks()
 
-
-    
     def handle_duplicates(self, filename):
         """Function to rename duplicate entries"""
         base_filename = filename
@@ -238,8 +303,15 @@ class ToolBarComponents:
 
     def load_ref_file(self):
         fname, _ = QFileDialog.getOpenFileName(self.main_window," Selet a reference file to open")
+
+        bin_width = None
+        if fname.lower().endswith(('.tif', '.tiff')) and bin_width is None:
+            # Prompt the user for bin_width only once
+            bin_width, ok = self.get_float_input()
+            if not ok or bin_width is None:
+                return  # If the user cancels or no val
         
-        ref_data,t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname)
+        ref_data,t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width)
         filename = fname.split('/')[-1].split('\\')[-1].split(".")[0]
         # updated reference bins based on time channels of reference file
         self.shared_info.ref_files_dict[filename] = {"ref_data":ref_data, "t_series":t_series, "bins_ref": ref_data.shape[0] }  # Assuming you want to store the full path
@@ -248,8 +320,15 @@ class ToolBarComponents:
 
     def load_irf_file(self):
         fname, _ = QFileDialog.getOpenFileName(self.main_window," Selet a reference file to open")
+
+        bin_width = None
+        if fname.lower().endswith('.csv') and bin_width is None:
+            # Prompt the user for bin_width only once
+            bin_width, ok = self.get_float_input()
+            if not ok or bin_width is None:
+                return  # If the user cancels or no val
         
-        ref_data,t_series = LifetimeData(self.main_window, self.app).load_irf(fname)
+        ref_data,t_series = LifetimeData(self.main_window, self.app).load_irf(fname, bin_width)
         filename = fname.split('/')[-1].split('\\')[-1].split(".")[0]
 
         self.shared_info.ref_files_dict[filename] = {"ref_data":ref_data, "t_series":t_series, "bins_ref" : 1}  # Assuming you want to store the full path
