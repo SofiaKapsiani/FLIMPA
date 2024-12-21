@@ -53,6 +53,7 @@ class PlotImages():
 
             # Add filename to the table
             rowPosition = self.fileTable.rowCount()
+
             if self.fileTable.rowCount() == 0:
                 self.fileTable.setColumnCount(2)  # Adjust to have two columns
                 self.fileTable.setHorizontalHeaderLabels(["File name", "Condition"])
@@ -63,15 +64,17 @@ class PlotImages():
             chkBoxItem.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
             chkBoxItem.setCheckState(Qt.Checked)
 
-            # Create condition item
+            # Create condition item (editable)
             conditionItem = QTableWidgetItem(self.shared_info.raw_data_dict[filename]["condition"])
-            # make condition item read only
-            conditionItem.setFlags(conditionItem.flags() & ~Qt.ItemIsEditable)
+            conditionItem.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
 
-
+            # Insert row and set items
             self.fileTable.insertRow(rowPosition)
             self.fileTable.setItem(rowPosition, 0, chkBoxItem)
             self.fileTable.setItem(rowPosition, 1, conditionItem)
+
+            # Connect the itemChanged signal
+            self.fileTable.itemChanged.connect(self.update_condition)
 
             # Ensure the canvas is properly updated
             self.canvas.draw()
@@ -83,6 +86,21 @@ class PlotImages():
 
         except Exception as e:
             print(f"Error loading image: {e}")
+    
+    # Define the update_condition method
+    def update_condition(self, item):
+        """
+        Update the condition in self.shared_info.raw_data_dict when the condition column is edited.
+        """
+        # Check if the changed item is in the "Condition" column
+        column = item.column()
+        if column == 1:  # Column index 1 corresponds to "Condition"
+            row = item.row()
+            filename = self.fileTable.item(row, 0).text()  # Get the filename from column 0
+            new_condition = item.text()  # Get the updated condition
+
+            # Update the shared_info dictionary
+            self.shared_info.raw_data_dict[filename]["condition"] = new_condition
 
     def handleCheckboxChange(self, item):
         # Check if the change is in the checkbox column (column 0)
@@ -102,8 +120,6 @@ class PlotImages():
             self.figure.clear()
             self.plot_img()
     
-
-
 
     def plot_img(self):
         '''Function for image and mask plotting'''
@@ -149,11 +165,14 @@ class PlotImages():
         colors = [(60/255, 162/255, 161/255, 0),  # fully transparent (for zero)
                 (60/255, 162/255, 161/255, 1)] # fully opaque (for non-zero) 
         cmap = LinearSegmentedColormap.from_list("custom_red", colors, N=2)
-      
-        masked_image_prepared = np.where(masked_image > 0, 0, 1)
-        # Display the masked_image with the custom colormap
-        ax.imshow(masked_image_prepared, cmap=cmap, alpha=0.35)
-    
+
+        # only mask the min and max photon for files that are not reference
+        if (self.shared_info.config["selected_file"] not in self.shared_info.ref_files_dict.keys() and
+            self.shared_info.raw_data_dict.get(self.shared_info.config["selected_file"], {}).get('condition') != "reference"):
+            masked_image_prepared = np.where(masked_image > 0, 0, 1)
+            # Display the masked_image with the custom colormap
+            ax.imshow(masked_image_prepared, cmap=cmap, alpha=0.35)
+        
         self.canvas.draw()
         self.canvas.figure.tight_layout()
 
@@ -162,9 +181,9 @@ class PlotImages():
         '''Function for plotting lifetime maps'''
         self.figure_tau.clear()
         tau = self.shared_info.results_dict.get(self.shared_info.config["selected_file"])[self.shared_info.config["lifetime_map"]]
-        
-        dim_img = int(np.sqrt(tau.shape)[0]) # get size of array with lifetime values
-        tau_img = np.reshape(tau*1e9, (dim_img, dim_img)) # reshape into a 2D array (i.e. the lifetime image)
+        x_dim, y_dim = self.shared_info.results_dict.get(self.shared_info.config["selected_file"])['img_shape'][1:] # get x and y dim
+
+        tau_img = np.reshape(tau*1e9, (x_dim, y_dim)) # reshape into a 2D array (i.e. the lifetime image)
         tau_img = tau_img.astype('float') # convert all values to float
         tau_img[tau_img == 0] = np.nan
 
@@ -197,7 +216,7 @@ class PlotImages():
                     (0, 0, 0, 0)] 
             cmap = LinearSegmentedColormap.from_list("custom_black", colors, N=2)
 
-            masked_image_prepared = np.reshape(masked_image, (dim_img, dim_img))
+            masked_image_prepared = np.reshape(masked_image, (x_dim, y_dim))
             
             # Display the masked_image with the custom colormap
             ax.imshow(masked_image_prepared, cmap=cmap, alpha=0.8)
@@ -248,12 +267,12 @@ class PlotImages():
             col = i % cols
             ax_gal = self.figure_gallery.add_subplot(gs[row, col])
             tau = data_dict[key][self.shared_info.config["lifetime_map"]]
+            x_dim, y_dim = data_dict[key]['img_shape'][1:] # get x and y dim
 
-            dim_img = int(np.sqrt(tau.shape))
-            tau_img = np.reshape(tau * 1e9, (dim_img, dim_img))
+            tau_img = np.reshape(tau * 1e9, (x_dim, y_dim))
             tau_img[tau_img == 0] = np.nan  # Handle NaNs
 
-            im = ax_gal.imshow(tau_img, cmap='gist_rainbow_r', aspect='equal',
+            im = ax_gal.imshow(tau_img, cmap='gist_rainbow_r',
                             vmin=float(self.shared_info.config["lifetime_vmin"]),
                             vmax=float(self.shared_info.config["lifetime_vmax"]))
 

@@ -23,6 +23,7 @@ class SharedData:
         self.results_dict = {}  # Dictionary to store results
         self.df_stats = {}  # Dictionary to store statistical data
         self.ptu_channel = {}  # Dictionary to store PTU file channels
+        self.ptu_time_binning = {}  # Dictionary to store PTU time binning selection
         self.phasor_settings = {  # Dictionary to store phasor plot settings
             "plot_type": "individual",
             "scatter_type": "scatter"

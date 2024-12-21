@@ -23,7 +23,7 @@ class PhasorPlot(QWidget):
         self.main_window = main_window
         self.shared_info = SharedData()
         self.helpers = Helpers(self.main_window)
-        self.w = 2 * math.pi * int(self.shared_info.config["frequency"]) * 1000000
+        self.w = 2 * math.pi * float(self.shared_info.config["frequency"]) * 1000000
         self.g = None
         self.s = None
         self.xlims = (-0.2, 1.2)  # Set appropriate limits

@@ -9,6 +9,7 @@ from utils.mainwindow import *
 from utils.shared_data import SharedData
 from  utils import save_data 
 from utils.plot_imgs import PlotImages
+from utils.errors import DataProcessingError
 
 class ToolBarComponents:
     def __init__(self, main_window, app):
@@ -90,7 +91,12 @@ class ToolBarComponents:
         return fnames
     
     def enter_files_by_cond(self):
-        previous_conditions = list(set(file_info['condition'] for file_info in self.shared_info.raw_data_dict.values()))
+        # show all conditions besides "reference"
+        previous_conditions = list(set(
+            file_info['condition'] 
+            for file_info in self.shared_info.raw_data_dict.values() 
+            if file_info['condition'] != "reference"
+        ))
     
         # Create and display the input dialog
         dialog = ConditionInputDialog(previous_conditions, self.main_window)
@@ -135,8 +141,7 @@ class ToolBarComponents:
             QMessageBox.warning(dialog, "Warning", 
                 "You have selected 'estimate' for the bin width. This will be calculated as:\n"
                 "bin width = 1 / (laser repetition rate × bin number).\n\n"
-                "Please note that this estimation may lead to inaccurate results depending on your data acquisition settings. "
-                "Please ensure that your laser settings and detection conditions are suitable for this calculation.")
+                "Please note that this estimation may lead to inaccurate results depending on your data acquisition settings. ")
             
         estimate_button.clicked.connect(estimate_bin_width)
 
@@ -158,6 +163,7 @@ class ToolBarComponents:
 
         # channel used when loading .ptu files
         self.shared_info.ptu_channel = None
+        self.shared_info.ptu_time_binning = None # option for binning time dimetion in ptu files for faster data analysis
 
         # Create a progress dialog
         progress_dialog = QProgressDialog("Loading files...", "", 0, len(fnames), self.main_window)
@@ -186,7 +192,7 @@ class ToolBarComponents:
                             break  # If the user cancels or no valid input, exit
 
                     # Assuming you have a mechanism to process and display each file
-                    data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width)
+                    data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width,  sample_count = i)
 
                     filename = fname.split('/')[-1].split('\\')[-1].split(".")[0]
                     # check if entry is duplicate and if so rename it
@@ -252,7 +258,7 @@ class ToolBarComponents:
                             break  # If the user cancels or no valid input, exit
                         
                     # Assuming you have a mechanism to process and display each file
-                    data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width)
+                    data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width, sample_count = i)
                     
                     filename_original = fname.split('/')[-1].split('\\')[-1].split(".")[0]
                     masked_data, mask_arr = LifetimeData(self.main_window, self.app).mask_data(masks_dir, filename_original, data)
@@ -303,36 +309,108 @@ class ToolBarComponents:
 
     def load_ref_file(self):
         fname, _ = QFileDialog.getOpenFileName(self.main_window," Selet a reference file to open")
+        self.shared_info.ptu_channel = None # set ptu channels info to None as the data may be stored in a different channel
+        self.shared_info.ptu_time_binning = None # option for binning time dimetion in ptu files for faster data analysis
 
         bin_width = None
-        if fname.lower().endswith(('.tif', '.tiff')) and bin_width is None:
-            # Prompt the user for bin_width only once
-            bin_width, ok = self.get_float_input()
-            if not ok or bin_width is None:
-                return  # If the user cancels or no val
+        # Create a progress dialog
+        progress_dialog = QProgressDialog("Loading reference file...", "", 0, 1, self.main_window)
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setMinimumDuration(0)
+
+        # Disable the close button and remove the cancel button
+        progress_dialog.setCancelButton(None)
+        #progress_dialog.setWindowFlag(Qt.WindowCloseButtonHint, False)
+
+        bin_width = None  # Initialize bin_width variable to store the user input
+
+        try:
+            
+            progress_dialog.setValue(0)
+            QApplication.processEvents()  # Process events to keep the UI responsive
+
+            if fname.lower().endswith(('.tif', '.tiff')) and bin_width is None:
+                # Prompt the user for bin_width only once
+                bin_width, ok = self.get_float_input()
+                if not ok or bin_width is None:
+                    return  # If the user cancels or no val
         
-        ref_data,t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width)
-        filename = fname.split('/')[-1].split('\\')[-1].split(".")[0]
-        # updated reference bins based on time channels of reference file
-        self.shared_info.ref_files_dict[filename] = {"ref_data":ref_data, "t_series":t_series, "bins_ref": ref_data.shape[0] }  # Assuming you want to store the full path
-        self.main_window.parameters_data.update_ref_file(list(self.shared_info.ref_files_dict.keys()))
-        #self.shared_info.config["selected_file"] = list(self.shared_info.ref_files_dict.keys())[-1]
+            ref_data,t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width, data_type="reference", sample_count = 0)
+            
+            filename = fname.split('/')[-1].split('\\')[-1].split(".")[0]
+            # updated reference bins based on time channels of reference file
+            self.shared_info.ref_files_dict[filename] = {"ref_data":ref_data, "t_series":t_series, "bins_ref": ref_data.shape[0] }  # Assuming you want to store the full path
+            self.main_window.parameters_data.update_ref_file(list(self.shared_info.ref_files_dict.keys()))
+            self.shared_info.raw_data_dict[filename] = {"data": ref_data, "t_series": t_series, "condition": "reference", "masked_data": None, 
+                                                                    "mask_arr": None, "analyse": "no"}
+            # only set the reference file as "selected file" if no other file has been loaded
+            if self.shared_info.config["selected_file"] == "None":
+                self.shared_info.config["selected_file"] = filename
+            self.plotImages.visualise_image(intensity_image=ref_data.sum(axis=0), filename=filename)
+            
+
+            self.main_window.activateWindow()  # Regain focus after files are loaded
+            self.main_window.raise_()  # Bring the window to the front
+
+
+            progress_dialog.setValue(1)  # Ensure the progress dialog is complete
+        except Exception as e:
+            progress_dialog.close()  # Close the progress dialog if an error occurs
+            raise  # Re-raise the exception to be handled elsewhere if needed
+
+        
 
     def load_irf_file(self):
         fname, _ = QFileDialog.getOpenFileName(self.main_window," Selet a reference file to open")
 
-        bin_width = None
-        if fname.lower().endswith('.csv') and bin_width is None:
-            # Prompt the user for bin_width only once
-            bin_width, ok = self.get_float_input()
-            if not ok or bin_width is None:
-                return  # If the user cancels or no val
-        
-        ref_data,t_series = LifetimeData(self.main_window, self.app).load_irf(fname, bin_width)
+        if fname.lower().endswith('.csv'):
+            # user warning when a .csv IRF is used
+            self.show_irf_warning(data_type="csv")
+        elif fname.lower().endswith('.sdt'):
+            # user warning when a .csv IRF is used
+            self.show_irf_warning(data_type="sdt")
+            
+        ref_data,t_series = LifetimeData(self.main_window, self.app).load_irf(fname)
         filename = fname.split('/')[-1].split('\\')[-1].split(".")[0]
 
         self.shared_info.ref_files_dict[filename] = {"ref_data":ref_data, "t_series":t_series, "bins_ref" : 1}  # Assuming you want to store the full path
         self.main_window.parameters_data.update_ref_file(list(self.shared_info.ref_files_dict.keys()))
+    
+    def show_irf_warning(self, data_type):
+        # Create a message box
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Warning)
+        msg_box.setWindowTitle("IRF Import Warning")
+        
+        # Format the message with bullet points
+        if data_type == "csv":
+            message = """
+            <p>Please use a reference file instead of an IRF where possible.<br>
+            Using an IRF can lead to less accurate results.</p>
+            <p>If you choose to continue, please confirm the following:</p>
+            <ul>
+                <li>The full IRF is provided (no cropping).</li>
+                <li>The first column contains time (in nanoseconds).</li>
+                <li>The second column contains the IRF signal.</li>
+                <li>No additional columns are included.</li>
+                <li>No columns titles are included.</li>
+            </ul>
+            """
+        elif data_type == "sdt":
+            message = """
+            <p>Please use a reference file instead of an IRF where possible.<br>
+            Using an IRF can lead to less accurate results.</p>"""
+            
+        msg_box.setText(message)
+        msg_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        
+        # Show the message box
+        response = msg_box.exec()
+        
+        # Handle response if needed
+        if response != QMessageBox.Ok:
+            raise DataProcessingError("Channel selection cancelled by user.")
+        
         
     # save error message
     def save_error_message(self, title, message):

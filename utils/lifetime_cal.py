@@ -39,7 +39,7 @@ class LifetimeData(QObject):
 
 
     # --- Image loading and lifetime calculation --- #
-    def load_raw_data(self, file_name, bin_width):
+    def load_raw_data(self, file_name, bin_width, data_type="sample", sample_count = 0):
         """Function for loading raw data files."""
         try:
             if file_name.endswith('.sdt'):
@@ -48,9 +48,33 @@ class LifetimeData(QObject):
                 data = np.moveaxis(sdt_file.data[0], -1, 0).astype(np.float32)
                 t_series = sdt_file.times[0].astype(np.float32)
 
+                # check if x and y dimentions are equal
+                if data.shape[1] != data.shape[2]:
+                    if data_type == "reference":
+                        # reference files with unequal space dimentions can not be anlysed, raise error
+                        raise DataProcessingError(f"Reference file must have identical x and y dimensions. \nCurrent dimensions are: {data.shape[1]}x{data.shape[2]}")
+                    elif data_type == "sample":
+                        if sample_count == 0: 
+                            show_error_message(self.main_window, "File Error", f"For best visualisation results we recommend files having identical x and y dimensions. \nCurrent dimensions are: {data.shape[1]}x{data.shape[2]}")
+
             elif file_name.endswith('.ptu'):
                 """read PicoQuant .ptu files"""
+                print("loading ptu ...")
                 ptu = PtuFile(os.path.join(file_name))
+                try:
+                    print(f"Frequency from metadata: {ptu.frequency/1000000} MHz")
+                except:
+                    pass
+
+                # check if x and y dimentions are equal
+                if ptu.shape[1] != ptu.shape[2]:
+                    if data_type == "reference":
+                        # reference files with unequal space dimentions can not be anlysed, raise error
+                        raise DataProcessingError(f"Reference file must have identical x and y dimensions. \nCurrent dimensions are: {ptu.shape[1]}x{ptu.shape[2]}")
+                    elif data_type == "sample":
+                        if sample_count == 0: 
+                            show_error_message(self.main_window, "File Error", f"For best visualisation results we recommend files having identical x and y dimensions. \nCurrent dimensions are: {ptu.shape[1]}x{ptu.shape[2]}")
+
                 num_channels = ptu.shape[3]
                 # Prepare the list of channels
                 items = [f"Channel {i}" for i in range(num_channels)]
@@ -58,21 +82,55 @@ class LifetimeData(QObject):
                     items = [f"Channel {i}" for i in range(num_channels)]
                     item, ok = QInputDialog.getItem(
                         self.main_window, "Select Channel", 
-                        "Select a channel to analyze:", 
+                        "Select a channel to analyse: \n(this will be applied to all the images imported)", 
                         items, 0, False)
                     self.shared_info.ptu_channel = items.index(item)
                     if not ok:
-                        raise DataProcessingError("Channel selection cancelled by user.")     
-        
+                        raise DataProcessingError("Channel selection cancelled by user.")   
+
+                # check if file time dimentions are larger than 100
+                t_series = np.asarray(ptu.coords['H'], dtype=np.float32)
+                if self.shared_info.ptu_time_binning == None:
+                    if t_series.shape[0] > 100:
+                        # get options for binning time dimentions
+                        final_shapes, final_time_resolution, bin_factors = self.ptu_select_time_bins(t_series=t_series)
+                        # combine final time dimentions and resolutions into a list of options
+                        items = [
+                            f"Time dimensions: {final_shape}, resolution: {resolution} ps, "
+                            for resolution, final_shape in zip(final_time_resolution, final_shapes)
+                        ]
+                        item, ok = QInputDialog.getItem(
+                            self.main_window, "Bin time dimentions", 
+                            "Select a bin factor to analyse: \n(this will be applied to all the images imported)\n\n Note: binning time dimentions will result to faster analysis  \nhowever, it leads to a loss of temperal resolution", 
+                            items, 0, False)
+                        if not ok:
+                            raise DataProcessingError("Channel selection cancelled by user.")   
+                        self.shared_info.ptu_time_binning = bin_factors[items.index(item)]
+
+                print("extracting data ...")
                 data = ptu[:, ..., self.shared_info.ptu_channel, :].sum(0)
                 # re-arrange channels to time-channels (change of intensity with time) and x-coordinate, y-coordinate (matches FLIMFit img)
                 data = np.transpose(data, (2, 1, 0))
                 data = data.astype(np.float32)
-                t_series = np.asarray(ptu.coords['H'], dtype=np.float32)
+                 # bin data if selected by user
+                if self.shared_info.ptu_time_binning > 1:
+                    print("binning time domain ...")
+                    data, t_series= self.bin_time_data(data=data,  time_series=t_series, bin_factor=self.shared_info.ptu_time_binning)
+                print("finished loading ptu file ...")
             
             elif file_name.endswith('.tiff') or file_name.endswith('.tif'):
                 data = imread(file_name)
                 data = data.squeeze()
+            
+                # check if x and y dimentions are equal
+                if data.shape[1] != data.shape[2]:
+                    if data_type == "reference":
+                        # reference files with unequal space dimentions can not be anlysed, raise error
+                        raise DataProcessingError(f"Reference file must have identical x and y dimensions. \nCurrent dimensions are: {data.shape[1]}x{data.shape[2]}")
+                    elif data_type == "sample":
+                        if sample_count == 0: 
+                            show_error_message(self.main_window, "File Error", f"For best visualisation results we recommend files having identical x and y dimensions. \nCurrent dimensions are: {data.shape[1]}x{data.shape[2]}")
+
                 if bin_width != None:
                     if bin_width == "estimate":
                         t_series = []
@@ -102,8 +160,58 @@ class LifetimeData(QObject):
         except Exception as e:
             show_error_message(self.main_window, "Loading Error", f"An unexpected error occurred while loading the file: {e}")
             raise FileLoadingError(f"Error loading file '{file_name}': {e}")
+
+       
+    def ptu_select_time_bins(self, t_series):
+        """Select time bins and resolution for binning time dimentions of large files (time dimentions > 512)"""
+        n = t_series.shape[0]
+        final_time_resolution = []
+        final_shapes = []
+        bin_factors = []
+        target_final_shape=50
+        initial_time_resolution = np.round((t_series[1]-t_series[0]) *10**12)
+
+        # Generate powers of 2 as bin factors until the array shape is near the target
+        power = 0
+        while True:
+            bin_factor = 2**power
+            final_shape = n // bin_factor
+            
+            # Stop when the final shape goes below the target
+            if final_shape < target_final_shape:
+                break
+
+            final_time_resolution.append(initial_time_resolution*bin_factor)
+            final_shapes.append(final_shape)
+            bin_factors.append(bin_factor)
+            power += 1
+
+        return final_shapes, final_time_resolution, bin_factors 
+
+    def bin_time_data(self, data, time_series, bin_factor):
+        """
+        Bins the time dimension of the data, handling cases where the time dimension
+        is not exactly divisible by the bin factor by truncating extra time points.
         
-    def load_irf(self, file_name, bin_width):
+        """
+        t, x, y = data.shape
+        
+        # Truncate the time dimension to make it divisible by bin_factor
+        remainder = t % bin_factor
+        if remainder != 0:
+            data = data[:-remainder, :, :]  # Remove extra elements at the end
+            time_series = time_series[:-remainder] # Remove extra elements from time axis data 
+
+        # Reshape and bin along the time dimension
+        new_t = t // bin_factor
+        binned_data = data.reshape(new_t, bin_factor, x, y).sum(axis=1)  # Use sum(axis=1) if needed
+
+        # Bin time series data
+        binned_time_series =time_series.reshape(-1, bin_factor).mean(axis=1)
+        
+        return binned_data, binned_time_series
+        
+    def load_irf(self, file_name):
         try:
             if file_name.endswith('.sdt'):
                 sdt_file = sdt.SdtFile(file_name)
@@ -120,41 +228,17 @@ class LifetimeData(QObject):
 
             elif file_name.endswith('.csv'):
                 # Load the CSV file
-                irf = np.genfromtxt(file_name, delimiter=',', skip_header=1).T
+                irf = np.genfromtxt(file_name, delimiter=',', skip_header=0).T
 
                 # Check the number of columns
                 num_columns = irf.shape[0]
-                if num_columns > 1:
-                    # Prompt the user to select the column
-                    items = [f"Column {i}" for i in range(num_columns)]
-                    item, ok = QInputDialog.getItem(
-                        self.main_window, "Select Column", 
-                        "Select the column where the IRF data is stored:", 
-                        items, 0, False
-                    )
-
-                    if not ok:
-                        raise DataProcessingError("Column selection cancelled by user.")
-                    
-                    # Extract the selected column index
-                    column = items.index(item)
-                else:
-                    # If there is only one column, use it
-                    column = 0
+                if num_columns != 2:
+                        raise DataProcessingError("Please provide a file with only 2 columns")
 
                 # Extract the IRF data from the selected column
-                data = irf[column]
+                data = irf[1]
                 data = data.reshape((data.shape[0], 1, 1)).astype(np.float32)
-
-                # Calculate time series
-                if bin_width != None:
-                    if bin_width == "estimate":
-                        t_series = []
-                    else:
-                        t_series = np.asarray([i*10**(-9) * bin_width for i in range(data.shape[0])], dtype =np.float32)
-                else:
-                    raise UnsupportedFileFormatError()
-            
+                t_series = irf[0]  
             else:
                 raise UnsupportedFileFormatError("Only .sdt and .csv file formats are supported for IRF data.")
             
@@ -186,13 +270,13 @@ class LifetimeData(QObject):
 
     def calc_w(self):
         """ Calculate w (angular frequeny) """
-        freq= int(self.shared_info.config["frequency"])*1e6
+        freq= float(self.shared_info.config["frequency"])*1e6
         w = 2*math.pi*freq # angular frequency
         return w
     
 
 
-    def calc_Coordinates(self, data, t_series, bins, min_photons, max_photons_t=False, mode_same=False):
+    def calc_Coordinates(self, data, t_series, bins, min_photons, offset_type="subtract_offset", max_photons_t=False, mode_same=False):
         """Import data, mask based on minimum photon counts per pixel threshold,
         bin data and calculate s and g coordinates """
 
@@ -218,7 +302,7 @@ class LifetimeData(QObject):
         binData = np.reshape(binData, (data.shape[0], -1))  # reshape array stacking x and y dimensions
 
         # subtract offset of the decay curve
-        if self.shared_info.config["subtract_offset"]:
+        if self.shared_info.config[offset_type]:
             num_offset_bins = int(self.shared_info.config["fraction_offset"] * binData.shape[0])
             # get the average photon counts in the first time-bins and subtract this from the rest of the time bins
             binData = binData - np.mean(binData[:num_offset_bins])
@@ -265,16 +349,10 @@ class LifetimeData(QObject):
         ref_data, t_series, bins_ref = self.shared_info.ref_files_dict[self.ref_filename].values()
 
         t_series = np.asarray(t_series)
-
-        if t_series.size == 0:  # Check if t_series is empty
-            freq= int(self.shared_info.config["frequency"])*1e6
-            t_resolution = 1 / ( freq* ref_data.shape[0])
-            t_series = np.asarray([i * t_resolution for i in range(ref_data.shape[0])], dtype =np.float32)
-            self.shared_info.ref_files_dict[self.ref_filename]['t_series'] = t_series
-            print("bind width estimated as:", t_resolution*10**9, "ns")
         
         # calculate reference g and s coordinates
-        ref_g, ref_s, _, _ = self.calc_Coordinates( data=ref_data, t_series=t_series, bins =bins_ref, min_photons=0, max_photons_t = False, mode_same = False)
+        ref_g, ref_s, _, _ = self.calc_Coordinates( data=ref_data, t_series=t_series, bins =bins_ref, min_photons=0,
+                                                   offset_type="subtract_offsetRef", max_photons_t = False, mode_same = False)
         # extract corrected modulation and phase correction from the reference sample
         M_ref, phi_ref = self.ref_lifetimes(ref_g, ref_s)
         return M_ref, phi_ref
@@ -327,7 +405,7 @@ class LifetimeData(QObject):
         t_series = np.asarray(t_series)
 
         if t_series.size == 0:  # Check if t_series is empty
-            freq= int(self.shared_info.config["frequency"])*1e6
+            freq= float(self.shared_info.config["frequency"])*1e6
             t_resolution = 1 / ( freq* raw_data.shape[0])
             t_series = np.asarray([i * t_resolution for i in range(raw_data.shape[0])], dtype =np.float32)
             self.shared_info.raw_data_dict[filename]['t_series'] = t_series
@@ -341,93 +419,96 @@ class LifetimeData(QObject):
 
         # calculate sample g and s coordinates
         g, s, img_shape, out_data = self.calc_Coordinates( data, t_series, bins = self.get_bins(), min_photons= self.shared_info.config["min_photons"],
-                                                           max_photons_t = True, mode_same = True)
+                                                           offset_type="subtract_offset",max_photons_t = True, mode_same = True)
         # correct g and s coordinates & modulation and phase lifetimes based on reference sample
-
         g_data, s_data, M_data, phi_data  = self.data_lifetimes(g, s,  M_ref,  phi_ref)
         return  out_data, g_data, s_data, M_data, phi_data, img_shape, condition
     
     def analyse_data(self):
-        '''Perform the analysis'''
+    
+        try:
+            '''Perform the analysis'''
 
-        # Initiate dictionary
-        M_ref, phi_ref = self.ref_correction()
+            # Initiate dictionary
+            M_ref, phi_ref = self.ref_correction()
 
-        total_files = len(self.shared_info.raw_data_dict)
-        files_exclude = 0
+            total_files = len(self.shared_info.raw_data_dict)
+            files_exclude = 0
 
-        # Determine the number of files to exclude
-        for filename, file_info in self.shared_info.raw_data_dict.items():
-            condition = file_info['condition']
-            if file_info['analyse'] == 'no' or (filename in self.shared_info.results_dict and self.shared_info.results_dict[filename]['condition'] == condition):
-                files_exclude += 1
+            # Determine the number of files to exclude
+            for filename, file_info in self.shared_info.raw_data_dict.items():
+                condition = file_info['condition']
+                if file_info['analyse'] == 'no' or (filename in self.shared_info.results_dict and self.shared_info.results_dict[filename]['condition'] == condition) or (filename in self.shared_info.ref_files_dict.keys()):
+                    files_exclude += 1
 
-        total_files -= files_exclude
+            total_files -= files_exclude
 
-        if total_files == 0:
-            # If there are no files to analyze, set progress bar to 100% and emit analysisFinished signal
-            self.progressUpdated.emit(100, "")
-            return
+            if total_files == 0:
+                # If there are no files to analyze, set progress bar to 100% and emit analysisFinished signal
+                self.progressUpdated.emit(100, "")
+                return
 
-        processed_files = 0
-        total_files +=1
-        # Loop through files in directory
-        for filename, file_info in self.shared_info.raw_data_dict.items():
-            if self.should_stop:
-                return self.shared_info.results_dict  # Exit if stop flag is set
-            condition = file_info['condition']
-            # Check if the filename and condition are already in self.results_dict
-            if filename in self.shared_info.results_dict and self.shared_info.results_dict[filename]['condition'] == condition:
-                continue  # Skip this file if it is already processed
+            processed_files = 0
+            total_files +=1
+            # Loop through files in directory
+            for filename, file_info in self.shared_info.raw_data_dict.items():
+                if self.should_stop:
+                    return self.shared_info.results_dict  # Exit if stop flag is set
+                condition = file_info['condition']
+                # Check if the filename and condition are already in self.results_dict
+                if filename in self.shared_info.results_dict and self.shared_info.results_dict[filename]['condition'] == condition or (filename in self.shared_info.ref_files_dict.keys()):
+                    continue  # Skip this file if it is already processed
 
-            if file_info['analyse'] == 'yes':
-                #print(f"analysing {filename}") 
-                # Emit progress signal
-                processed_files += 1
-                progress_percentage = int((processed_files / total_files) * 100)
-                self.progressUpdated.emit(progress_percentage, filename)
+                if file_info['analyse'] == 'yes':
+                    # Emit progress signal
+                    processed_files += 1
+                    progress_percentage = int((processed_files / total_files) * 100)
+                    self.progressUpdated.emit(progress_percentage, filename)
 
-                # Extract the lifetime parameters for each sample
-                sample_data, g_data, s_data, M_data, phi_data, img_shape, condition = self.lifetime_parameters(filename, M_ref, phi_ref)
-                # Save coordinates and lifetimes in results dictionary
-                self.shared_info.results_dict[filename] = {
-                    'sample_data': sample_data, 'g': g_data, 's': s_data, 'M': M_data,
-                    'phi': phi_data, 'average': (M_data + phi_data) / 2, 'phasor_mask': None,
-                    'condition': condition, 'mask': self.shared_info.raw_data_dict[filename]['mask_arr']
-                }
+                    # Extract the lifetime parameters for each sample
+                    sample_data, g_data, s_data, M_data, phi_data, img_shape, condition = self.lifetime_parameters(filename, M_ref, phi_ref)
+                    # Save coordinates and lifetimes in results dictionary
+                    self.shared_info.results_dict[filename] = {
+                        'sample_data': sample_data, 'g': g_data, 's': s_data, 'M': M_data,
+                        'phi': phi_data, 'average': (M_data + phi_data) / 2, 'phasor_mask': None,
+                        'img_shape': img_shape, 'condition': condition, 'mask': self.shared_info.raw_data_dict[filename]['mask_arr']
+                    }
 
-        
-        # Save key output parameters into a pandas df format
-        lifetime_means_dict = []
-        for sample_name, sample_data in self.shared_info.results_dict.items():
-            condition = sample_data['condition']
-            for region_index, (M_value, phi_value, average_value) in enumerate(zip(
-                get_tau_roi(mask=sample_data['mask'], tau_map=sample_data['M']),
-                get_tau_roi(mask=sample_data['mask'], tau_map=sample_data['phi']),
-                get_tau_roi(mask=sample_data['mask'], tau_map=sample_data['average']))):
-                lifetime_means_dict.append({
-                    'sample': sample_name,
-                    'condition': condition,
-                    'region': region_index + 1,  # Adjust based on your region numbering
-                    'M': M_value,
-                    'M_mean': round(np.asarray(sample_data['M'][sample_data['M'] >0]*1e9).mean(), 3),
-                    'phi': phi_value,
-                    'phi_mean': round(np.asarray(sample_data['phi'][sample_data['phi'] >0]*1e9).mean(), 3),
-                    'average': average_value,
-                    'average_mean': round(np.asarray(sample_data['average'][sample_data['average'] >0]*1e9).mean(), 3),
-                })
-
-        # Convert the list of dictionaries directly into a DataFrame
-        self.shared_info.df_stats = pd.DataFrame(lifetime_means_dict)
-
-        processed_files += 1
-        progress_percentage = int((processed_files / total_files) * 100)
-        self.progressUpdated.emit(progress_percentage, filename)
-        
-        # Emit the analysis finished signal
-        self.analysisFinished.emit()
-        return self.shared_info.results_dict
             
+            # Save key output parameters into a pandas df format
+            lifetime_means_dict = []
+            for sample_name, sample_data in self.shared_info.results_dict.items():
+                condition = sample_data['condition']
+                for region_index, (M_value, phi_value, average_value) in enumerate(zip(
+                    get_tau_roi(mask=sample_data['mask'], tau_map=sample_data['M']),
+                    get_tau_roi(mask=sample_data['mask'], tau_map=sample_data['phi']),
+                    get_tau_roi(mask=sample_data['mask'], tau_map=sample_data['average']))):
+                    lifetime_means_dict.append({
+                        'sample': sample_name,
+                        'condition': condition,
+                        'region': region_index + 1,  # Adjust based on your region numbering
+                        'M': M_value,
+                        'M_mean': round(np.asarray(sample_data['M'][sample_data['M'] >0]*1e9).mean(), 3),
+                        'phi': phi_value,
+                        'phi_mean': round(np.asarray(sample_data['phi'][sample_data['phi'] >0]*1e9).mean(), 3),
+                        'average': average_value,
+                        'average_mean': round(np.asarray(sample_data['average'][sample_data['average'] >0]*1e9).mean(), 3),
+                    })
+
+            # Convert the list of dictionaries directly into a DataFrame
+            self.shared_info.df_stats = pd.DataFrame(lifetime_means_dict)
+
+            processed_files += 1
+            progress_percentage = int((processed_files / total_files) * 100)
+            self.progressUpdated.emit(progress_percentage, filename)
+            
+            # Emit the analysis finished signal
+            self.analysisFinished.emit()
+            return self.shared_info.results_dict
+        except Exception as e:
+            show_error_message(self.main_window, "Analysis Error", f"An error occurred during data analysis: {str(e)}")
+
+                
 
 
 def get_tau_roi(mask, tau_map):
