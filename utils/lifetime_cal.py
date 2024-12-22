@@ -101,7 +101,7 @@ class LifetimeData(QObject):
                         ]
                         item, ok = QInputDialog.getItem(
                             self.main_window, "Bin time dimentions", 
-                            "Select a bin factor to analyse: \n(this will be applied to all the images imported)\n\n Note: binning time dimentions will result to faster analysis  \nhowever, it leads to a loss of temperal resolution", 
+                            "Select a bin factor: \n(this will be applied to all the images imported)\n\n Note: binning time dimentions will result to faster analysis  \nhowever, it can reduce the accuracy of the analysis.", 
                             items, 0, False)
                         if not ok:
                             raise DataProcessingError("Channel selection cancelled by user.")   
