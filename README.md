@@ -105,9 +105,12 @@ To run the phasor plot analysis, the following parameters need to be specified:
 - `Minimum Photon Count Threshold` (*optional*, at least 100 p.c. per pixel recommended)
 - `Maximum Photon Count Threshold` (*optional*)
 
+Note: The reference file is shown only to confirm it was loaded correctly and will not be analyzed. Please do not load sample data with the same name as the reference file.
+
 *Example: Importing Reference file, setting minimum photon counts threshold and running the analysis*
 
-![preprocessing](https://github.com/user-attachments/assets/ecc6bef9-4ca7-4583-9229-657719737731)
+![loading_ref](https://github.com/user-attachments/assets/4436669d-2a9b-48b6-8c64-c5b7a4d1bf50)
+
 
 ## Phasor Plot Visualisation 
 FLIMPA enables to visualisation of phasor plots from single images and combined plots from multiple samples.  Additionally three different phasor visualisation options: `scatter` plots, `histograms` and `contour` maps.
