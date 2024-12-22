@@ -6,7 +6,7 @@
 # Project background
 
 <p align="center">
-  <strong> ** For the best results, please use our latest version </strong> 
+  <strong> ** For best results, please use our latest version </strong> 
   <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.2">
     FLIMPA (v1.2) </a> **
 </p>
