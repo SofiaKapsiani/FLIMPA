@@ -5,16 +5,22 @@
 
 # Project background
 
+<p align="center">
+  <strong> ** For the best results, please use our latest version </strong> 
+  <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.2">
+    FLIMPA (v1.2) </a> **
+</p>
+
 **FLIMPA** is an open-source software designed for the phasor plot analysis of raw Time-Correlated Single Photon Counting (TCSPC) Fluorescence Lifetime Imaging Microscopy (FLIM) data.
 Developed in Python, it offers an intuitive graphical user interface (GUI) for the analysis and visualisation of FLIM data.
 
-To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.1" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
+To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.2" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
 
 > **FLIMPA: An accessible software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis**          
 > Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Mona Shehata, Clemens F. Kaminski, Gabriele S. Kaminski Schierle    
 > <a href="https://www.ceb-mng.org/" target="_blank">Molecular Neuroscience Group</a> and <a href="https://laser.ceb.cam.ac.uk/" target="_blank">Laser Analytics Group</a> (University of Cambridge)
 > 
-[[`FLIMPA (1.1)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.1)] [[`user manual`](https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing)] [[`bioRxiv`](https://www.biorxiv.org/content/10.1101/2024.09.13.612802v1)]  [[`bibtex`](#bibtex-citation)]
+[[`FLIMPA (1.2)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.2)] [[`user manual`](https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing)] [[`bioRxiv`](https://www.biorxiv.org/content/10.1101/2024.09.13.612802v1)]  [[`bibtex`](#bibtex-citation)]
 
 
 ##  Features
@@ -32,7 +38,7 @@ To run the software, please download the executable (<a href="https://github.com
 
 # Installation
 
-FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.1" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
+FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.2" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
 
 1. **Download the repository**
     ```bash
