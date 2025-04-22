@@ -390,7 +390,7 @@ class ToolBarComponents:
             <p>If you choose to continue, please confirm the following:</p>
             <ul>
                 <li>The full IRF is provided (no cropping).</li>
-                <li>The first column contains time (in nanoseconds).</li>
+                <li>The first column contains time (in seconds).</li>
                 <li>The second column contains the IRF signal.</li>
                 <li>No additional columns are included.</li>
                 <li>No columns titles are included.</li>
@@ -577,8 +577,8 @@ class ToolBarComponents:
     def _save_phasor_transparent(self, progress_dialog, output_dir):
         # Save the phasor plot
         try:
-            save_data.save_phasor_plot(output_dir, self.shared_info.results_dict, self.shared_info.phasor_settings)
-            save_data.save_phasor_plot_condition(output_dir, self.shared_info.results_dict, self.shared_info.phasor_settings)
+            save_data.save_phasor_plot(output_dir, self.shared_info.results_dict, self.shared_info.phasor_settings, self.shared_info.config["frequency"])
+            save_data.save_phasor_plot_condition(output_dir, self.shared_info.results_dict, self.shared_info.phasor_settings, self.shared_info.config["frequency"])
         finally:
             # Close the progress dialog after saving is complete
             progress_dialog.close()

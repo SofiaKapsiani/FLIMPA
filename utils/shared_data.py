@@ -26,7 +26,8 @@ class SharedData:
         self.ptu_time_binning = {}  # Dictionary to store PTU time binning selection
         self.phasor_settings = {  # Dictionary to store phasor plot settings
             "plot_type": "individual",
-            "scatter_type": "scatter"
+            "scatter_type": "scatter",
+            "tau_labels": True,
         }
 
     def load_config(self):

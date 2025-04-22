@@ -67,6 +67,8 @@ class ParameterWidgets():
             self.main_window.plotImages.update_mask_for_current_image()  # Call update_mask_for_current_image when min_photons is updated
         elif param_id == "max_photons":
             self.main_window.plotImages.update_mask_for_current_image()  # Call update_mask_for_current_image when min_photons is updated
+        elif param_id =="frequency":
+            self.main_window.phasor_componets.add_plot()
 
     
     def update_ref_file(self, ref_filenames):

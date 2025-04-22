@@ -33,7 +33,9 @@ class PhasorPlot(QWidget):
         self.figure_phasor = self.main_window.figure_phasor
         self.canvas_phasor = self.main_window.canvas_phasor
         self.fixed_dpi = self.main_window.fixed_dpi
+        self.tau_labels_active = True  # Initial state: on
         self.initUI()  # Initialize the UI here
+
 
     def initUI(self):
         self.layout = QHBoxLayout(self)  # Main layout is horizontal
@@ -45,11 +47,19 @@ class PhasorPlot(QWidget):
         self.toolbar = NavigationToolbar(self.canvas_phasor, self)
         h_layout_nav.addWidget(self.toolbar, 1)
 
+        # Add "lifetimes labels" button
+        self.btn_tau = QPushButton("τ Labels")
+        self.btn_tau.clicked.connect(self.toggle_tau_labels)
+        #self.btn_tau.setStyleSheet('QPushButton {color: white;}')
+        # Initial active color
+        self.btn_tau.setStyleSheet('QPushButton {background-color: rgb(60, 162, 161); color: white;}')
+        buttonLayout = QHBoxLayout()
+        buttonLayout.addWidget(self.btn_tau)
+
         # Add "ROI" button
         self.btn_select = QPushButton("ROI")
         self.btn_select.clicked.connect(self.toggle_roi)
         self.btn_select.setStyleSheet('QPushButton {color: white;}')
-        buttonLayout = QHBoxLayout()
         buttonLayout.addWidget(self.btn_select)
 
         # Create and add the Display dropdown
@@ -165,11 +175,33 @@ class PhasorPlot(QWidget):
         self.con_img = self.ax.plot(self.x, self.y, 'dimgray', linewidth=1)
 
         # plot mono-exponential lifetimes on semicircle
-        #w = 2*math.pi*int(self.shared_info.config["frequency"])*1e6# angular frequency
-        #tau_labels = np.arange(0 * 1e-9, 14 * 1e-9, 1e-9)  # Array from 0 to 14e-9 with step size of 1e-9
-        #g_unisem = 1 / (1 + w ** 2 * tau_labels ** 2)  # Calculate g-coordinates
-        #s_unisem = w * tau_labels / (1 + w ** 2 * tau_labels ** 2)  # Calculate s-coordinates
-        #p1 = self.ax.plot(g_unisem, s_unisem, 'o', markersize=3, mec='#ababab', mfc='dimgray') 
+        # Only show lifetimes if active
+        if self.tau_labels_active:
+            # plot mono-exponential lifetimes on semicircle
+            w = 2*math.pi*int(self.shared_info.config["frequency"])*1e6  # angular frequency
+            if int(self.shared_info.config["frequency"]) >= 100:
+                tau_labels = np.arange(0 * 1e-9, 9 * 1e-9, 1e-9)  # Array from 0 to 8 ns
+            elif int(self.shared_info.config["frequency"]) > 50:
+                tau_labels = np.arange(0 * 1e-9, 11 * 1e-9, 1e-9)  # Array from 0 to 10 ns
+            elif int(self.shared_info.config["frequency"]) < 30:
+                tau_labels = np.arange(0 * 1e-9, 15 * 1e-9, 1e-9)  # Array from 0 to 14 ns
+            else:
+                tau_labels = np.arange(0 * 1e-9, 13 * 1e-9, 1e-9)  # Array from 0 to 12 ns
+                
+            g_unisem = 1 / (1 + w ** 2 * tau_labels ** 2)  # g-coordinates
+            s_unisem = w * tau_labels / (1 + w ** 2 * tau_labels ** 2)  # s-coordinates
+            self.ax.plot(g_unisem, s_unisem, 'o', markersize=3, mec='#ababab', mfc='dimgray')  # Points
+
+            # Labels
+            for g, s, tau in zip(g_unisem, s_unisem, tau_labels):
+                label = f"{int(tau * 1e9)}ns"
+                if g >= 0.7:
+                    self.ax.text(g + 0.02, s, label, color='white', fontsize=8, ha='left', va='center')
+                elif g >= 0.3:
+                    self.ax.text(g - 0.03, s, label, color='white', fontsize=8, ha='left', va='center')
+                else:
+                    self.ax.text(g - 0.025, s, label, color='white', fontsize=8, ha='right', va='center')
+
 
         self.ax.set_xlim([-0.005, 1])
         self.ax.set_ylim([0, 0.65])
@@ -213,6 +245,20 @@ class PhasorPlot(QWidget):
     def on_draw(self, event):
         self.enforce_xlims()
         self.enforce_ylims()
+    
+    def toggle_tau_labels(self):
+        self.tau_labels_active = not self.tau_labels_active
+
+        if self.tau_labels_active:
+            self.btn_tau.setStyleSheet('QPushButton {background-color: rgb(60, 162, 161); color: white;}')
+            self.shared_info.phasor_settings["tau_labels"] = True
+        else:
+            self.btn_tau.setStyleSheet('QPushButton {color: white;}')
+            self.shared_info.phasor_settings["tau_labels"] = False
+
+        self.add_plot()  # Refresh the plot with/without labels
+
+
 
     def toggle_roi(self):
         if self.toolbar.mode == 'zoom rect':
@@ -225,6 +271,7 @@ class PhasorPlot(QWidget):
             self.selector = EllipseSelector(self.ax, self.onselect, useblit=True,
                                             props={'facecolor': 'none', 'edgecolor': (60 / 255, 162 / 255, 161 / 255), 'alpha': 0.8, 'linewidth': 1},
                                             interactive=True)
+            self.btn_select.setStyleSheet('QPushButton {background-color: rgb(60, 162, 161); color: white;}')
         else:
             self.deactivate_roi()
 
@@ -233,6 +280,7 @@ class PhasorPlot(QWidget):
             self.selector.set_active(False)
             self.selector.set_visible(False)
             self.selector = None
+            self.btn_select.setStyleSheet('QPushButton {color: white;}')
             self.canvas_phasor.draw_idle()  # Ensure the canvas is refreshed to remove ROI visuals
 
     def onselect(self, eclick, erelease):
@@ -377,6 +425,7 @@ class PhasorPlot(QWidget):
 
     def highlightPlotPoints_individual(self, label):
         self.deactivate_roi()
+        self.btn_select.setStyleSheet('QPushButton {color: white;}')
         self.btn_select.setEnabled(False)
 
         # Remove the previous highlighted sample plot if it exists
@@ -423,6 +472,7 @@ class PhasorPlot(QWidget):
 
     def highlightPlotPoints_condition(self, label):
         self.deactivate_roi()
+        self.btn_select.setStyleSheet('QPushButton {color: white;}')
         self.btn_select.setEnabled(False)
 
         # Remove the previous highlighted condition plot if it exists

@@ -308,7 +308,7 @@ def save_gallery_int_view(output_dir, progress_dialog, file_name, data_dict, con
         progress_dialog.close()
 
 
-def save_phasor_plot(output_dir, data_dict, phasor_settings):
+def save_phasor_plot(output_dir, data_dict, phasor_settings, frequency):
     """
     Save the gallery view as a .png file in a specified directory.
     
@@ -316,6 +316,7 @@ def save_phasor_plot(output_dir, data_dict, phasor_settings):
     data_dict (dict): Dictionary containing the lifetime analysis results.
     output_dir (str): Directory where the .png file will be saved.
     phasor_settings (dict): Configuration dictionary containing settings like scatter_type.
+    frequency (int): laser frequency
     """
     # Create the output directory if it doesn't exist
     if not os.path.exists(str(output_dir)):
@@ -328,6 +329,32 @@ def save_phasor_plot(output_dir, data_dict, phasor_settings):
     x = np.linspace(0, 1, 1000)
     y = np.sqrt(r ** 2 - (x - h) ** 2)
     ax.plot(x, y, 'black', linewidth=1)
+
+    # plot mono-exponential lifetimes on semicircle
+    if phasor_settings.get("tau_labels", True):
+            # plot mono-exponential lifetimes on semicircle
+            w = 2*math.pi*int(frequency)*1e6  # angular frequency
+            if int(frequency) >= 100:
+                tau_labels = np.arange(0 * 1e-9, 9 * 1e-9, 1e-9)  # Array from 0 to 8 ns
+            elif int(frequency) > 50:
+                tau_labels = np.arange(0 * 1e-9, 11 * 1e-9, 1e-9)  # Array from 0 to 10 ns
+            elif int(frequency) < 30:
+                tau_labels = np.arange(0 * 1e-9, 15 * 1e-9, 1e-9)  # Array from 0 to 14 ns
+            else:
+                tau_labels = np.arange(0 * 1e-9, 13 * 1e-9, 1e-9)  # Array from 0 to 12 ns
+            g_unisem = 1 / (1 + w ** 2 * tau_labels ** 2)  # g-coordinates
+            s_unisem = w * tau_labels / (1 + w ** 2 * tau_labels ** 2)  # s-coordinates
+            ax.plot(g_unisem, s_unisem, 'o', markersize=3, mec='black', mfc='dimgray')  # Points
+
+            # Labels
+            for g, s, tau in zip(g_unisem, s_unisem, tau_labels):
+                label = f"{int(tau * 1e9)}ns"
+                if g >= 0.7:
+                    ax.text(g + 0.02, s, label, color='black', fontsize=8, ha='left', va='center')
+                elif g >= 0.3:
+                    ax.text(g - 0.03, s, label, color='black', fontsize=8, ha='left', va='center')
+                else:
+                    ax.text(g - 0.025, s, label, color='black', fontsize=8, ha='right', va='center')
 
     ax.set_xlim([-0.005, 1])
     ax.set_ylim([0, 0.65])
@@ -372,7 +399,7 @@ def save_phasor_plot(output_dir, data_dict, phasor_settings):
     plt.close(fig)
 
 
-def save_phasor_plot_condition(output_dir, data_dict, phasor_settings):
+def save_phasor_plot_condition(output_dir, data_dict, phasor_settings, frequency):
     """
     Save condition-based phasor plots as a .png file in a specified directory.
 
@@ -380,6 +407,7 @@ def save_phasor_plot_condition(output_dir, data_dict, phasor_settings):
     output_dir (str): Directory where the .png file will be saved.
     data_dict (dict): Dictionary containing the lifetime analysis results grouped by conditions.
     phasor_settings (dict): Configuration dictionary containing settings like scatter_type.
+    frequency (int): laser frequency
     """
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -396,6 +424,40 @@ def save_phasor_plot_condition(output_dir, data_dict, phasor_settings):
     ax.set_ylim([0, 0.65])
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
+
+    # plot mono-exponential lifetimes on semicircle
+    if phasor_settings.get("tau_labels", True): 
+        w = 2 * math.pi * int(frequency) * 1e6  # angular frequency
+        tau_labels = np.arange(0 * 1e-9, 14 * 1e-9, 1e-9)  # Array from 0 to 13ns with step size of 1ns
+        g_unisem = 1 / (1 + w ** 2 * tau_labels ** 2)  # Calculate g-coordinates
+        s_unisem = w * tau_labels / (1 + w ** 2 * tau_labels ** 2)  # Calculate s-coordinates
+        p1 = ax.plot(g_unisem, s_unisem, 'o', markersize=3, mec='black', mfc='dimgray')
+
+        # plot mono-exponential lifetimes on semicircle
+        if phasor_settings.tau_labels:
+                # plot mono-exponential lifetimes on semicircle
+                w = 2*math.pi*int(frequency)*1e6  # angular frequency
+                if int(frequency) >= 100:
+                    tau_labels = np.arange(0 * 1e-9, 9 * 1e-9, 1e-9)  # Array from 0 to 8 ns
+                elif int(frequency) > 50:
+                    tau_labels = np.arange(0 * 1e-9, 11 * 1e-9, 1e-9)  # Array from 0 to 10 ns
+                elif int(frequency) < 30:
+                    tau_labels = np.arange(0 * 1e-9, 15 * 1e-9, 1e-9)  # Array from 0 to 14 ns
+                else:
+                    tau_labels = np.arange(0 * 1e-9, 13 * 1e-9, 1e-9)  # Array from 0 to 12 ns
+                g_unisem = 1 / (1 + w ** 2 * tau_labels ** 2)  # g-coordinates
+                s_unisem = w * tau_labels / (1 + w ** 2 * tau_labels ** 2)  # s-coordinates
+                ax.plot(g_unisem, s_unisem, 'o', markersize=3, mec='black', mfc='dimgray')  # Points
+
+                # Labels
+                for g, s, tau in zip(g_unisem, s_unisem, tau_labels):
+                    label = f"{int(tau * 1e9)}ns"
+                    if g >= 0.7:
+                        ax.text(g + 0.02, s, label, color='black', fontsize=8, ha='left', va='center')
+                    elif g >= 0.3:
+                        ax.text(g - 0.03, s, label, color='black', fontsize=8, ha='left', va='center')
+                    else:
+                        ax.text(g - 0.025, s, label, color='black', fontsize=8, ha='right', va='center')
 
     tab20_cmap = plt.get_cmap('tab20')
     num_colors = tab20_cmap.N
