@@ -29,6 +29,7 @@ class SharedData:
             "scatter_type": "scatter",
             "tau_labels": True,
         }
+        self.last_active_tab= {} # Dictionary to store the last tab selected in the GUI
 
     def load_config(self):
         """

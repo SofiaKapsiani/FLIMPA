@@ -151,7 +151,8 @@ def save_gallery_view(output_dir, progress_dialog, file_name, data_dict, config)
                             alpha=0.5)
 
             images.append(im)  # Add the image to the list
-            ax_gal.set_title(key, color='black', fontsize=10)
+            fontsize = 8 if len(key) < 25 else 6
+            ax_gal.set_title(key, color='black', fontsize=fontsize)
             ax_gal.patch.set_facecolor('black')
             ax_gal.axis('off')
             
@@ -167,6 +168,7 @@ def save_gallery_view(output_dir, progress_dialog, file_name, data_dict, config)
 
         # Save the figure
         gallery_path_png = os.path.join(output_dir, f"{file_name}.png")
+        fig.subplots_adjust(top=0.95)
         plt.savefig(gallery_path_png, bbox_inches='tight', dpi=300, transparent=True)
         plt.close(fig)
     finally:
@@ -286,7 +288,8 @@ def save_gallery_int_view(output_dir, progress_dialog, file_name, data_dict, con
         
 
             images.append(im)  # Add the image to the list
-            ax_gal.set_title(key, color='black', fontsize=10)
+            fontsize = 8 if len(key) < 25 else 6
+            ax_gal.set_title(key, color='black', fontsize=fontsize)
             ax_gal.axis('off')
 
         # Add a single colorbar for all plots
@@ -301,6 +304,7 @@ def save_gallery_int_view(output_dir, progress_dialog, file_name, data_dict, con
         # Save the figure
         gallery_path_png = os.path.join(output_dir, f"{file_name}.png")
         fig.patch.set_facecolor('black')
+        fig.subplots_adjust(top=0.95)
         plt.savefig(gallery_path_png, bbox_inches='tight', dpi=300, transparent = True)
         plt.close(fig)
     finally:

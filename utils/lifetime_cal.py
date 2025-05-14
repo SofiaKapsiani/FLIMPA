@@ -158,7 +158,26 @@ class LifetimeData(QObject):
             show_error_message(self.main_window, "Processing Error", str(e))
             raise
         except Exception as e:
-            show_error_message(self.main_window, "Loading Error", f"An unexpected error occurred while loading the file: {e}")
+            # tiff loading error
+            error_msg = str(e)
+
+            if "Unable to allocate" in error_msg or "incorrect StripByteCounts count" in error_msg:
+                show_error_message(
+                    self.main_window,
+                    "File Error",
+                    f"The file '{file_name}' seems too large or has corrupted TIFF structure.\n\n"
+                    "Recommended fix:\n"
+                    "- Open the file in ImageJ (Fiji).\n"
+                    "- Re-save it as TIFF with dimensions ordered as (t, x, y).\n"
+                    "- This will reduce memory usage and correct internal strip errors."
+                )
+            else:
+                show_error_message(
+                    self.main_window,
+                    "Loading Error",
+                    f"An unexpected error occurred while loading the file:\n{e}"
+                )
+
             raise FileLoadingError(f"Error loading file '{file_name}': {e}")
 
        

@@ -4,6 +4,7 @@ from PySide6.QtGui import QDoubleValidator
 
 from PySide6.QtCore import Qt, QTimer
 import numpy as np
+from pathlib import Path
 from utils.lifetime_cal import LifetimeData
 from utils.mainwindow import *
 from utils.shared_data import SharedData
@@ -194,7 +195,7 @@ class ToolBarComponents:
                     # Assuming you have a mechanism to process and display each file
                     data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width,  sample_count = i)
 
-                    filename = fname.split('/')[-1].split('\\')[-1].split(".")[0]
+                    filename = Path(fname).stem
                     # check if entry is duplicate and if so rename it
                     filename = self.handle_duplicates(filename)
 
@@ -230,7 +231,7 @@ class ToolBarComponents:
         if not masks_dir:
             return  # Cancel if no directory is selected
 
-        print([x.split('/')[-1].split('\\')[-1].split(".")[0] for x in fnames], masks_dir)
+        print([Path(x).stem for x in fnames], masks_dir)
 
         # Create a progress dialog
         progress_dialog = QProgressDialog("Loading mask files...", "", 0, len(fnames), self.main_window)
@@ -260,7 +261,7 @@ class ToolBarComponents:
                     # Assuming you have a mechanism to process and display each file
                     data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width, sample_count = i)
                     
-                    filename_original = fname.split('/')[-1].split('\\')[-1].split(".")[0]
+                    filename_original = Path(fname).stem
                     masked_data, mask_arr = LifetimeData(self.main_window, self.app).mask_data(masks_dir, filename_original, data)
                     
                     # Check if entry is duplicate and if so rename it
@@ -337,7 +338,7 @@ class ToolBarComponents:
         
             ref_data,t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width, data_type="reference", sample_count = 0)
             
-            filename = fname.split('/')[-1].split('\\')[-1].split(".")[0]
+            filename = Path(fname).stem
             # updated reference bins based on time channels of reference file
             self.shared_info.ref_files_dict[filename] = {"ref_data":ref_data, "t_series":t_series, "bins_ref": ref_data.shape[0] }  # Assuming you want to store the full path
             self.main_window.parameters_data.update_ref_file(list(self.shared_info.ref_files_dict.keys()))
@@ -371,7 +372,7 @@ class ToolBarComponents:
             self.show_irf_warning(data_type="sdt")
             
         ref_data,t_series = LifetimeData(self.main_window, self.app).load_irf(fname)
-        filename = fname.split('/')[-1].split('\\')[-1].split(".")[0]
+        filename = Path(fname).stem
 
         self.shared_info.ref_files_dict[filename] = {"ref_data":ref_data, "t_series":t_series, "bins_ref" : 1}  # Assuming you want to store the full path
         self.main_window.parameters_data.update_ref_file(list(self.shared_info.ref_files_dict.keys()))

@@ -162,10 +162,13 @@ class PhasorPlot(QWidget):
         dark_gray = (18 / 255, 18 / 255, 18 / 255)
 
         # Set the figure background to dark gray
-        self.figure_phasor.patch.set_facecolor(dark_gray)
+        #self.figure_phasor.patch.set_facecolor(dark_gray)
+        # Set the figure background to transparent
+        self.figure_phasor.patch.set_facecolor('none')
 
         # Set the axes background to dark gray
-        self.ax.set_facecolor(dark_gray)
+        #self.ax.set_facecolor(dark_gray)
+        self.ax.set_facecolor('none')
 
         # Plotting the semi-circle
         r = 0.5
@@ -190,33 +193,35 @@ class PhasorPlot(QWidget):
                 
             g_unisem = 1 / (1 + w ** 2 * tau_labels ** 2)  # g-coordinates
             s_unisem = w * tau_labels / (1 + w ** 2 * tau_labels ** 2)  # s-coordinates
-            self.ax.plot(g_unisem, s_unisem, 'o', markersize=3, mec='#ababab', mfc='dimgray')  # Points
+            self.ax.plot(g_unisem, s_unisem, 'o', markersize=3, mec='dimgray', mfc='dimgray')  # Points
 
             # Labels
             for g, s, tau in zip(g_unisem, s_unisem, tau_labels):
                 label = f"{int(tau * 1e9)}ns"
-                if g >= 0.7:
-                    self.ax.text(g + 0.02, s, label, color='white', fontsize=8, ha='left', va='center')
+                if g >= 0.6:
+                    self.ax.text(g + 0.02, s, label, color='dimgray', fontsize=8, ha='left', va='center')
+                elif g >= 0.4:
+                    self.ax.text(g - 0.05, s+0.01, label, color='dimgray', fontsize=8, ha='left', va='center')
                 elif g >= 0.3:
-                    self.ax.text(g - 0.03, s, label, color='white', fontsize=8, ha='left', va='center')
+                    self.ax.text(g - 0.05, s, label, color='dimgray', fontsize=8, ha='left', va='center')
                 else:
-                    self.ax.text(g - 0.025, s, label, color='white', fontsize=8, ha='right', va='center')
+                    self.ax.text(g - 0.01, s, label, color='dimgray', fontsize=8, ha='right', va='center')
 
 
         self.ax.set_xlim([-0.005, 1])
         self.ax.set_ylim([0, 0.65])
 
-        # Change text color to white
-        self.ax.xaxis.label.set_color('white')  # X-axis label
-        self.ax.yaxis.label.set_color('white')  # Y-axis label
-        self.ax.title.set_color('white')  # Plot title, if you have one
+        # Change text color to dimgray
+        self.ax.xaxis.label.set_color('dimgray')  # X-axis label
+        self.ax.yaxis.label.set_color('dimgray')  # Y-axis label
+        self.ax.title.set_color('dimgray')  # Plot title, if you have one
 
-        # Change axes tick color to white
-        self.ax.tick_params(axis='x', colors='white')  # Change x-axis tick colors to white
-        self.ax.tick_params(axis='y', colors='white')  # Change y-axis tick colors to white
+        # Change axes tick color to dimgray
+        self.ax.tick_params(axis='x', colors='dimgray')  # Change x-axis tick colors to dimgray
+        self.ax.tick_params(axis='y', colors='dimgray')  # Change y-axis tick colors to dimgray
 
-        self.ax.spines['left'].set_color('white')
-        self.ax.spines['bottom'].set_color('white')
+        self.ax.spines['left'].set_color('dimgray')
+        self.ax.spines['bottom'].set_color('dimgray')
 
         # Set right and top spines to be invisible
         self.ax.spines['right'].set_visible(False)
@@ -256,7 +261,16 @@ class PhasorPlot(QWidget):
             self.btn_tau.setStyleSheet('QPushButton {color: white;}')
             self.shared_info.phasor_settings["tau_labels"] = False
 
-        self.add_plot()  # Refresh the plot with/without labels
+        # Update plot with what tab was last selected by the user
+        if self.shared_info.last_active_tab == "Lifetime maps":
+            self.plot_phasor_coordinates(cmap="gist_rainbow_r")
+        elif self.shared_info.last_active_tab == "Gallery (tau)":
+            if self.shared_info.phasor_settings["plot_type"] == "individual":
+                self.plot_phasor_gallery_individual(data_dict=self.shared_info.results_dict)
+            elif self.shared_info.phasor_settings["plot_type"] == "condition":
+                self.plot_phasor_gallery_condition(data_dict=self.shared_info.results_dict)
+        else:
+            self.add_plot()  # Refresh the plot with/without labels
 
 
 

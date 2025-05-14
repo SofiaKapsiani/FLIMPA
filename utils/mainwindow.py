@@ -187,6 +187,9 @@ class MainWindow(QMainWindow):
             self.ui_layout.tabs_widget.addTab(violin_plot_tab, "Violin plots")
     
     def onTabChanged(self, index):
+        # Save the name of the active tab
+        current_tab_name = self.ui_layout.tabs_widget.tabText(index)
+        
         if self.ui_layout.tabs_widget.tabText(index) == "Intensity display":
             if self.shared_info.config["selected_file"] in self.shared_info.intensity_img_dict:
                 self.plotImages.plot_img()
@@ -194,6 +197,7 @@ class MainWindow(QMainWindow):
         elif self.ui_layout.tabs_widget.tabText(index) == "Lifetime maps":
             self.plotImages.plot_tau_map()
             self.phasor_componets.plot_phasor_coordinates(cmap="gist_rainbow_r")
+            self.shared_info.last_active_tab = current_tab_name
 
         elif self.ui_layout.tabs_widget.tabText(index) == "Gallery (tau)":
             #print(f"Plot type updated to: {self.shared_info.phasor_settings['plot_type']}")
@@ -202,6 +206,7 @@ class MainWindow(QMainWindow):
             elif self.shared_info.phasor_settings["plot_type"] == "condition":
                 self.phasor_componets.plot_phasor_gallery_condition(data_dict=self.shared_info.results_dict)
             self.helpers.resizeGallery()
+            self.shared_info.last_active_tab = current_tab_name
 
         elif self.ui_layout.tabs_widget.tabText(index) == "Gallery (I)":
             self.helpers.resizeGallery_I()

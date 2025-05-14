@@ -284,7 +284,8 @@ class PlotImages():
                             alpha=0.5)
 
             images.append(im)  # Add the image to the list
-            ax_gal.set_title(key, color='white', fontsize=10)
+            fontsize = 8 if len(key) < 25 else 6
+            ax_gal.set_title(key, color='white', fontsize=fontsize)
             ax_gal.axis('off')
 
         # Add a single colorbar for all plots
@@ -355,7 +356,8 @@ class PlotImages():
                             vmin=self.shared_info.config["vmin_int"], vmax=self.shared_info.config["vmax_int"])
         
             images.append(im)  # Add the image to the list
-            ax_int.set_title(key, color='white', fontsize=10)
+            fontsize = 8 if len(key) < 25 else 6
+            ax_int.set_title(key, color='white', fontsize=fontsize)
             ax_int.axis('off')
         
         self.main_window.gallery_layout_grid_I.addWidget(self.canvas_gallery_I, 0, 0, 1, 1)
