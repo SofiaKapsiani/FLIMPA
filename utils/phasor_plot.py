@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from pathlib import Path
 import math
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QPushButton, QListWidget, QAbstractItemView, QListWidgetItem, QComboBox, QSizePolicy
 from PySide6.QtGui import QPixmap, QColor, QIcon, QPainter, QPen, QBrush
@@ -7,6 +8,7 @@ from PySide6.QtCore import Signal, Qt
 
 import matplotlib.pyplot as plt
 from matplotlib import colors
+from matplotlib.patches import Patch
 import seaborn as sns
 from matplotlib.widgets import EllipseSelector
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -532,6 +534,53 @@ class PhasorPlot(QWidget):
         self.ax.set_xlim([-0.005, 1])
         self.ax.set_ylim([0, 0.65])
         self.canvas_phasor.draw_idle()
+    
+    def save_current_view_as_pdf(self, output_path):
+
+        file_ext = Path(output_path).suffix.lower().lstrip('.')
+        legend = None
+        try:
+            scatter_type = self.shared_info.phasor_settings.get("scatter_type", "scatter")
+            plot_type = self.shared_info.phasor_settings.get("plot_type", "individual")
+
+            handles = []
+            labels = []
+
+            if scatter_type == "contour":
+                if plot_type == "individual":
+                    for label, color in self.plot_data_colors:
+                        patch = Patch(facecolor=color, edgecolor='dimgray', label=label)
+                        handles.append(patch)
+                        labels.append(label)
+                elif plot_type == "condition":
+                    for label, color in self.plot_data_colors.items():
+                        patch = Patch(facecolor=color, edgecolor='dimgray', label=label)
+                        handles.append(patch)
+                        labels.append(label)
+            else:
+                handles, labels = self.ax.get_legend_handles_labels()
+
+            if handles:
+                legend = self.ax.legend(
+                    handles, labels,
+                    loc='upper center',
+                    bbox_to_anchor=(0.5, -0.1),
+                    fontsize=8,
+                    frameon=False,
+                    ncol=5
+                )
+
+                # Set legend text color to dimgray
+                for text in legend.get_texts():
+                    text.set_color('dimgray')
+
+            self.figure_phasor.savefig(output_path, format=file_ext, bbox_inches='tight', transparent=True, dpi=300)
+
+        finally:
+            if legend:
+                legend.remove()
+            self.canvas_phasor.draw_idle()
+
 
 
 class LegendWidget(QListWidget):
@@ -586,8 +635,7 @@ class LegendWidget(QListWidget):
         # Create and return a QIcon from the pixmap
         return QIcon(pixmap)
 
-
 class NavigationToolbar(NavigationToolbar2QT):
     # only display the buttons we need
     toolitems = [t for t in NavigationToolbar2QT.toolitems if
-                 t[0] in ('Home', 'Back', 'Forward', 'Zoom', 'Save')] # 'Customize', 'Pan'
+                 t[0] in ('Home', 'Back', 'Forward', 'Zoom', 'Save')] # 'Customize', 'Pan'      

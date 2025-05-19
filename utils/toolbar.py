@@ -1,3 +1,4 @@
+import os
 from PySide6.QtWidgets import (QStatusBar, QMenuBar, QFileDialog, QInputDialog, QFileDialog, QLineEdit, QLabel,QPushButton,
                                QProgressDialog, QApplication, QMessageBox, QComboBox, QVBoxLayout, QDialogButtonBox, QDialog)
 from PySide6.QtGui import QDoubleValidator
@@ -8,16 +9,16 @@ from pathlib import Path
 from utils.lifetime_cal import LifetimeData
 from utils.mainwindow import *
 from utils.shared_data import SharedData
-from  utils import save_data 
+from utils import save_data 
 from utils.plot_imgs import PlotImages
 from utils.errors import DataProcessingError
+
 
 class ToolBarComponents:
     def __init__(self, main_window, app):
         self.main_window = main_window
         self.app = app
         self.shared_info = SharedData()
-
         self.plotImages = PlotImages(self.main_window)
         self.setup_menu()
         self.setup_statusbar()
@@ -555,11 +556,15 @@ class ToolBarComponents:
             return
     
     def save_phasor_transparent(self):
-        output_dir = QFileDialog.getExistingDirectory(self.main_window, "Select the folder to save the phasor plot")
-        print(output_dir)
+    
+        file_path, _ = QFileDialog.getSaveFileName(
+                self.main_window,
+                "Save Phasor Plot As",
+                "phasor_plot",  # Default name
+                "PNG Files (*.png);;SVG Files (*.svg);;PDF Files (*.pdf)"
+            )
         
-        if output_dir:
-            # Show the "Saving data..." progress dialog
+        if file_path:
             progress_dialog = QProgressDialog("Saving data...", "", 0, 0, self.main_window)
             progress_dialog.setWindowTitle("Saving Data")
             progress_dialog.setWindowModality(Qt.WindowModal)
@@ -567,22 +572,18 @@ class ToolBarComponents:
             progress_dialog.setCancelButton(None)
             progress_dialog.show()
 
-            # Process events to ensure the dialog is shown
             QApplication.processEvents()
 
-            # Add a small delay to ensure the dialog displays correctly
-            QTimer.singleShot(100, lambda: self._save_phasor_transparent(progress_dialog, output_dir))
-        else:
-            return
+            # Use the correct function name to avoid recursion
+            QTimer.singleShot(100, lambda: self._save_phasor_pdf(progress_dialog, file_path))
 
-    def _save_phasor_transparent(self, progress_dialog, output_dir):
-        # Save the phasor plot
+    def _save_phasor_pdf(self, progress_dialog, file_path):
         try:
-            save_data.save_phasor_plot(output_dir, self.shared_info.results_dict, self.shared_info.phasor_settings, self.shared_info.config["frequency"])
-            save_data.save_phasor_plot_condition(output_dir, self.shared_info.results_dict, self.shared_info.phasor_settings, self.shared_info.config["frequency"])
+            print(file_path)
+            self.main_window.phasor_componets.save_current_view_as_pdf(file_path)
         finally:
-            # Close the progress dialog after saving is complete
             progress_dialog.close()
+
     
     def save_violin_transparent(self):
         if not self.shared_info.results_dict:
