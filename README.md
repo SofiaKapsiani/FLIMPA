@@ -66,7 +66,9 @@ FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaK
 
 # Usage
 
-For detailed information please refer to our <a href="https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing" target="_blank">online user manual</a>.
+For detailed information please refer to our online user manuals (<a href="https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf" target="_blank">PDF</a> & <a href="https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing" target="_blank">PowerPoint</a>).
+
+
   ![overview](https://github.com/user-attachments/assets/60722b16-39ea-4dcd-b472-00ec8990f616)
 
 ## Importing Data
