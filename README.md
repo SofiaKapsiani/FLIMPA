@@ -12,28 +12,29 @@
 </p>
 
 **FLIMPA** is an open-source software designed for the phasor plot analysis of raw Time-Correlated Single Photon Counting (TCSPC) Fluorescence Lifetime Imaging Microscopy (FLIM) data.
-Developed in Python, it offers an intuitive graphical user interface (GUI) for the analysis and visualisation of FLIM data.
-
 To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.1" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
 
-> **FLIMPA: An accessible software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis**          
+> **FLIMPA: A Versatile Software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis**, published in *Analytical Chemistry*          
 > Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Mona Shehata, Clemens F. Kaminski, Gabriele S. Kaminski Schierle    
 > <a href="https://www.ceb-mng.org/" target="_blank">Molecular Neuroscience Group</a> and <a href="https://laser.ceb.cam.ac.uk/" target="_blank">Laser Analytics Group</a> (University of Cambridge)
 > 
-[[`FLIMPA (1.3.1)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.1)] [[`user manual`](https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing)] [[`bioRxiv`](https://www.biorxiv.org/content/10.1101/2024.09.13.612802v1)]  [[`bibtex`](#bibtex-citation)]
+[[`FLIMPA (1.3.1)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.1)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)]  [[`user manual (PDF)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [`user manual (PowerPoint)`](https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing)] [[`citation`](#bibtex-citation)]
 
 
 ##  Features
 
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/48a6a9b8-3d79-4cb2-a910-56432db24f60" alt="flimpa_abstract_figure"  width=80% height=80%>
+</div>
+
+<br>
+
 - Phasor plot generation and analysis
-- Table of mean fluorescence lifetime values per image
+- Fluorescence lifetime and intensity map visualisation (individual per image)
 - ROI selection 
-- Gallery plotting of fluorescence lifetime and intensity maps
-- Violin plot visualisation
-
-
-  ![overview](https://github.com/user-attachments/assets/60722b16-39ea-4dcd-b472-00ec8990f616)
-
+- Gallery plots of fluorescence lifetime and intensity maps
+- Violin plot analysis
+- Table of mean fluorescence lifetime values per image
 
 
 # Installation
@@ -65,6 +66,7 @@ FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaK
 # Usage
 
 For detailed information please refer to our <a href="https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing" target="_blank">online user manual</a>.
+  ![overview](https://github.com/user-attachments/assets/60722b16-39ea-4dcd-b472-00ec8990f616)
 
 ## Importing Data
 
@@ -138,14 +140,11 @@ FLIMPA also allows users to export all generated data. This includes:
 *If you found **FLIMPA** helpful for your data analysis, please consider citing our work!* 😊
 <a name="bibtex-citation"></a>
 ```
-@article{Kapsiani2024.09.13.612802,
-	author = {Kapsiani, Sofia and L{\"a}ubli, Nino F and Ward, Edward N and Shehata, Mona and Kaminski, Clemens F and Kaminski Schierle, Gabriele S},
-	title = {FLIMPA: A versatile software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis},
-	elocation-id = {2024.09.13.612802},
-	year = {2024},
-	doi = {10.1101/2024.09.13.612802},
-	URL = {https://www.biorxiv.org/content/early/2024/09/19/2024.09.13.612802},
-	eprint = {https://www.biorxiv.org/content/early/2024/09/19/2024.09.13.612802.full.pdf},
-	journal = {bioRxiv}
+@article{kapsiani2024flimpa,
+  title={FLIMPA: A versatile software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis},
+  author={Kapsiani, Sofia and Läubli, Nino F and Ward, Edward N and Shehata, Mona and Kaminski, Clemens F and Kaminski Schierle, Gabriele S},
+  journal={Analytical Chemistry},
+  year={2024},
+  publisher={ACS Publications}
 }
 ```
