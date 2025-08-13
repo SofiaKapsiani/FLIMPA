@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 from pathlib import Path
 import math
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QPushButton, QListWidget, QAbstractItemView, QListWidgetItem, QComboBox, QSizePolicy

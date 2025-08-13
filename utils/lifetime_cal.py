@@ -549,7 +549,8 @@ def get_tau_roi(mask, tau_map):
             
             # Use the mask to select tau values for the current region
             tau_region = tau_map[region_mask_flattened]
-            
+            tau_region = tau_region[tau_region > 0]  # Filter out zero values
+
             # Store mean of each tau roi, rounded to 3 decimal places
             tau_roi.append(round(float(tau_region.mean()) * 1e9, 3))
     
