@@ -143,11 +143,11 @@ FLIMPA also allows users to export all generated data. This includes:
 *If you found **FLIMPA** helpful for your data analysis, please consider citing our work!* 😊
 <a name="bibtex-citation"></a>
 ```
-@article{kapsiani2024flimpa,
+@article{kapsiani2025flimpa,
   title={FLIMPA: A versatile software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis},
   author={Kapsiani, Sofia and Läubli, Nino F and Ward, Edward N and Shehata, Mona and Kaminski, Clemens F and Kaminski Schierle, Gabriele S},
   journal={Analytical Chemistry},
-  year={2024},
+  year={2025},
   publisher={ACS Publications}
 }
 ```
