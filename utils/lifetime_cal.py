@@ -89,11 +89,11 @@ class LifetimeData(QObject):
                         raise DataProcessingError("Channel selection cancelled by user.")   
 
                 # check if file time dimentions are larger than 100
-                t_series = np.asarray(ptu.coords['H'], dtype=np.float32)
+                initial_t_series = np.asarray(ptu.coords['H'], dtype=np.float32)
                 if self.shared_info.ptu_time_binning == None:
-                    if t_series.shape[0] > 100:
+                    if initial_t_series.shape[0] > 100:
                         # get options for binning time dimentions
-                        final_shapes, final_time_resolution, bin_factors = self.ptu_select_time_bins(t_series=t_series)
+                        final_shapes, final_time_resolution, bin_factors = self.ptu_select_time_bins(t_series=initial_t_series)
                         # combine final time dimentions and resolutions into a list of options
                         items = [
                             f"Time dimensions: {final_shape}, resolution: {resolution} ps, "
@@ -108,14 +108,21 @@ class LifetimeData(QObject):
                         self.shared_info.ptu_time_binning = bin_factors[items.index(item)]
 
                 print("extracting data ...")
-                data = ptu[:, ..., self.shared_info.ptu_channel, :].sum(0)
-                # re-arrange channels to time-channels (change of intensity with time) and x-coordinate, y-coordinate (matches FLIMFit img)
-                data = np.transpose(data, (2, 1, 0))
-                data = data.astype(np.float32)
-                 # bin data if selected by user
-                if self.shared_info.ptu_time_binning > 1:
-                    print("binning time domain ...")
-                    data, t_series= self.bin_time_data(data=data,  time_series=t_series, bin_factor=self.shared_info.ptu_time_binning)
+                time_slice = slice(None, None, self.shared_info.ptu_time_binning)
+                full_selection = (..., time_slice)
+
+                # decode image with the specified channel and selection
+                data_array = ptu.decode_image(
+                    full_selection,
+                    channel=self.shared_info.ptu_channel,
+                    asxarray=False,
+                    keepdims=False,
+                    frame=-1 # sums up all time channels
+                )
+
+                data = np.transpose(data_array, (2, 1, 0))
+                t_series = initial_t_series[time_slice]
+
                 print("finished loading ptu file ...")
             
             elif file_name.endswith('.tiff') or file_name.endswith('.tif'):
@@ -187,48 +194,28 @@ class LifetimeData(QObject):
         final_time_resolution = []
         final_shapes = []
         bin_factors = []
-        target_final_shape=50
-        initial_time_resolution = np.round((t_series[1]-t_series[0]) *10**12)
+        target_final_shape = 50
+        
+        # Do not round the initial resolution
+        initial_time_resolution = (t_series[1] - t_series[0]) * 10**12
 
-        # Generate powers of 2 as bin factors until the array shape is near the target
         power = 0
         while True:
             bin_factor = 2**power
-            final_shape = n // bin_factor
             
-            # Stop when the final shape goes below the target
+            # Calculate the final shape correctly
+            final_shape = n // bin_factor + min(1, n % bin_factor)
+            
             if final_shape < target_final_shape:
                 break
 
-            final_time_resolution.append(initial_time_resolution*bin_factor)
+            final_time_resolution.append(np.round((initial_time_resolution * bin_factor),2))
             final_shapes.append(final_shape)
             bin_factors.append(bin_factor)
             power += 1
 
-        return final_shapes, final_time_resolution, bin_factors 
+        return final_shapes, final_time_resolution, bin_factors
 
-    def bin_time_data(self, data, time_series, bin_factor):
-        """
-        Bins the time dimension of the data, handling cases where the time dimension
-        is not exactly divisible by the bin factor by truncating extra time points.
-        
-        """
-        t, x, y = data.shape
-        
-        # Truncate the time dimension to make it divisible by bin_factor
-        remainder = t % bin_factor
-        if remainder != 0:
-            data = data[:-remainder, :, :]  # Remove extra elements at the end
-            time_series = time_series[:-remainder] # Remove extra elements from time axis data 
-
-        # Reshape and bin along the time dimension
-        new_t = t // bin_factor
-        binned_data = data.reshape(new_t, bin_factor, x, y).sum(axis=1)  # Use sum(axis=1) if needed
-
-        # Bin time series data
-        binned_time_series =time_series.reshape(-1, bin_factor).mean(axis=1)
-        
-        return binned_data, binned_time_series
         
     def load_irf(self, file_name):
         try:
