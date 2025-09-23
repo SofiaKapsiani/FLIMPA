@@ -7,19 +7,19 @@
 
 <p align="center">
   <strong> ** Please use our latest version </strong> 
-  <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.2">
-    FLIMPA (v1.3.2) </a> **
+  <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.3">
+    FLIMPA (v1.3.3) </a> **
 </p>
 
 **FLIMPA** is an open-source software designed for the phasor plot analysis of raw Time-Correlated Single Photon Counting (TCSPC) Fluorescence Lifetime Imaging Microscopy (FLIM) data.
 <br>
-To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.2" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
+To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.3" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
 
 > **FLIMPA: A Versatile Software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis**, published in *Analytical Chemistry*          
 > Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Mona Shehata, Clemens F. Kaminski, Gabriele S. Kaminski Schierle    
 > <a href="https://www.ceb-mng.org/" target="_blank">Molecular Neuroscience Group</a> and <a href="https://laser.ceb.cam.ac.uk/" target="_blank">Laser Analytics Group</a> (University of Cambridge)
 > 
-[[`FLIMPA (1.3.2)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.2)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)]  [[`user manual (PDF)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [`user manual (PowerPoint)`](https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing)] [[`citation`](#bibtex-citation)]
+[[`FLIMPA (1.3.3)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.3)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)]  [[`user manual (PDF)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [`user manual (PowerPoint)`](https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing)] [[`citation`](#bibtex-citation)]
 
 
 ##  Features
@@ -40,7 +40,7 @@ To run the software, please download the executable (<a href="https://github.com
 
 # Installation
 
-FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.2" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
+FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.3" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
 
 1. **Download the repository**
     ```bash
@@ -86,6 +86,7 @@ Files with spatial dimensions exceeding 1000 × 1000 can be analysed but may cau
 > ```(1 / (Instrument Frequency (in Hz) * Number of Bins)) * 10^9 ```<br>
 > However, this estimate may be inaccurate depending on your data acquisition settings.
 
+For more information on `.ptu` files, please refer to slide 5 of the <a href="https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing" target="_blank">online user manual</a>.
 
 The software can be tested using the  `.sdt` files provided in the  `sample_data` folder. These sample data were used in our publication and involve COS-7 cells stained with SiR-tubulin, treated with 40 µM of Nocodazole. Control data are also included, consisting of images of untreated cells.
 
