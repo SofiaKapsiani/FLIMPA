@@ -182,12 +182,12 @@ class PhasorPlot(QWidget):
         # Only show lifetimes if active
         if self.tau_labels_active:
             # plot mono-exponential lifetimes on semicircle
-            w = 2*math.pi*int(self.shared_info.config["frequency"])*1e6  # angular frequency
-            if int(self.shared_info.config["frequency"]) >= 100:
+            w = 2*math.pi*float(self.shared_info.config["frequency"])*1e6  # angular frequency
+            if float(self.shared_info.config["frequency"]) >= 100:
                 tau_labels = np.arange(0 * 1e-9, 9 * 1e-9, 1e-9)  # Array from 0 to 8 ns
-            elif int(self.shared_info.config["frequency"]) > 50:
+            elif float(self.shared_info.config["frequency"]) > 50:
                 tau_labels = np.arange(0 * 1e-9, 11 * 1e-9, 1e-9)  # Array from 0 to 10 ns
-            elif int(self.shared_info.config["frequency"]) < 30:
+            elif float(self.shared_info.config["frequency"]) < 30:
                 tau_labels = np.arange(0 * 1e-9, 15 * 1e-9, 1e-9)  # Array from 0 to 14 ns
             else:
                 tau_labels = np.arange(0 * 1e-9, 13 * 1e-9, 1e-9)  # Array from 0 to 12 ns

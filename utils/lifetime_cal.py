@@ -110,6 +110,14 @@ class LifetimeData(QObject):
                 print("extracting data ...")
                 time_slice = slice(None, None, self.shared_info.ptu_time_binning)
                 full_selection = (..., time_slice)
+                if self.shared_info.ptu_time_binning >2:
+                    # disable temporal offset subtraction (baseline correction)
+                    # large time binning (factor > 2) merges the electronic noise floor with the signal's rising edge
+                    # this leads to over-subtraction and distortion of the decay curve
+                    self.shared_info.config["subtract_offset"] = False 
+                    # update parameters box in main window
+                    self.main_window.parameters_data.update_offset(enable_offset=False)
+                    
 
                 # decode image with the specified channel and selection
                 data_array = ptu.decode_image(
@@ -289,7 +297,6 @@ class LifetimeData(QObject):
         intensity = data.sum(0)  # sum along the time channels to reduce the matrix to 2 dimensions (x and y only), where the values of x and y are the photon counts at each pixel
 
         # Create intensity mask, masking out pixels with less photons than the threshold value
-        
         masked_data = np.where(intensity < int(min_photons), 0, data)
         if max_photons_t and self.shared_info.config["max_photons"] != "None":
             masked_data = np.where(intensity > int(self.shared_info.config["max_photons"]), 0, masked_data)
@@ -308,10 +315,11 @@ class LifetimeData(QObject):
         binData = np.reshape(binData, (data.shape[0], -1))  # reshape array stacking x and y dimensions
 
         # subtract offset of the decay curve
-        if self.shared_info.config[offset_type]:
-            num_offset_bins = int(self.shared_info.config["fraction_offset"] * binData.shape[0])
+        if self.shared_info.config[offset_type] != "False":
+            offset_fraction = float(self.shared_info.config["fraction_offset"])/100
+            num_offset_bins = int(offset_fraction * binData.shape[0])
             # get the average photon counts in the first time-bins and subtract this from the rest of the time bins
-            binData = binData - np.mean(binData[:num_offset_bins])
+            binData = binData - np.mean(binData[:num_offset_bins], axis=0)
             # set negative values to zero
             binData = binData.clip(min=0)
 
@@ -358,7 +366,7 @@ class LifetimeData(QObject):
         
         # calculate reference g and s coordinates
         ref_g, ref_s, _, _ = self.calc_Coordinates( data=ref_data, t_series=t_series, bins =bins_ref, min_photons=0,
-                                                   offset_type="subtract_offsetRef", max_photons_t = False, mode_same = False)
+                                                   offset_type="subtract_offset", max_photons_t = False, mode_same = False)
         # extract corrected modulation and phase correction from the reference sample
         M_ref, phi_ref = self.ref_lifetimes(ref_g, ref_s)
         return M_ref, phi_ref

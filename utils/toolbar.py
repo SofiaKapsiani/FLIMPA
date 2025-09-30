@@ -339,7 +339,7 @@ class ToolBarComponents:
         
             ref_data,t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width, data_type="reference", sample_count = 0)
             
-            filename = Path(fname).stem
+            filename = f'{Path(fname).stem}_reference'
             # updated reference bins based on time channels of reference file
             self.shared_info.ref_files_dict[filename] = {"ref_data":ref_data, "t_series":t_series, "bins_ref": ref_data.shape[0] }  # Assuming you want to store the full path
             self.main_window.parameters_data.update_ref_file(list(self.shared_info.ref_files_dict.keys()))

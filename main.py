@@ -21,7 +21,7 @@ icon = QIcon(QPixmap(icon_path))
 app.setWindowIcon(icon)
 
 window = MainWindow(app)
-window.setWindowTitle("FLIMPA (v1.3.3)")
+window.setWindowTitle("FLIMPA (v1.3.4)")
 window.setWindowIcon(icon)  # Set the window icon here
 window.showMaximized()
 
