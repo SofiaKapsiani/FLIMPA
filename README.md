@@ -7,19 +7,19 @@
 
 <p align="center">
   <strong> ** Please use our latest version </strong> 
-  <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.3">
-    FLIMPA (v1.3.3) </a> **
+  <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4">
+    FLIMPA (v1.4) </a> **
 </p>
 
 **FLIMPA** is an open-source software designed for the phasor plot analysis of raw Time-Correlated Single Photon Counting (TCSPC) Fluorescence Lifetime Imaging Microscopy (FLIM) data.
 <br>
-To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.3" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
+To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
 
 > **FLIMPA: A Versatile Software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis**, published in *Analytical Chemistry*          
 > Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Mona Shehata, Clemens F. Kaminski, Gabriele S. Kaminski Schierle    
 > <a href="https://www.ceb-mng.org/" target="_blank">Molecular Neuroscience Group</a> and <a href="https://laser.ceb.cam.ac.uk/" target="_blank">Laser Analytics Group</a> (University of Cambridge)
 > 
-[[`FLIMPA (1.3.3)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.3)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)]  [[`user manual (PDF)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [`user manual (PowerPoint)`](https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing)] [[`citation`](#bibtex-citation)]
+[[`FLIMPA (1.4)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)] [`user manual (PowerPoint)`](https://docs.google.com/presentation/d/1rq5PuOyjQz3sg_ERyIjXMgyj1betNweTIrD1v64-u7o/edit?usp=sharing)] [[`user manual (PDF)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [[`citation`](#bibtex-citation)]
 
 
 ##  Features
@@ -40,7 +40,7 @@ To run the software, please download the executable (<a href="https://github.com
 
 # Installation
 
-FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.3.3" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
+FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
 
 1. **Download the repository**
     ```bash
@@ -66,10 +66,11 @@ FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaK
 
 # Usage
 
-For detailed information please refer to our online user manuals (<a href="https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf" target="_blank">PDF</a> & <a href="https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing" target="_blank">PowerPoint</a>).
+For detailed information please refer to our online user manuals (<a href="https://docs.google.com/presentation/d/1rq5PuOyjQz3sg_ERyIjXMgyj1betNweTIrD1v64-u7o/edit?usp=sharing" target="_blank">PowerPoint</a> & <a href="https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf" target="_blank">PDF</a>).
 
 
-  ![overview](https://github.com/user-attachments/assets/60722b16-39ea-4dcd-b472-00ec8990f616)
+![intro_v1 4](https://github.com/user-attachments/assets/81cd375b-d5af-4eec-931f-b3ca2f0ef38e)
+
 
 ## Importing Data
 
@@ -86,7 +87,7 @@ Files with spatial dimensions exceeding 1000 × 1000 can be analysed but may cau
 > ```(1 / (Instrument Frequency (in Hz) * Number of Bins)) * 10^9 ```<br>
 > However, this estimate may be inaccurate depending on your data acquisition settings.
 
-For more information on `.ptu` files, please refer to slide 5 of the <a href="https://docs.google.com/presentation/d/1QhVxaMxtbJyqJu0Qqq47dlyh1Fq_08x5p-t_djGUT-Y/edit?usp=sharing" target="_blank">online user manual</a>.
+**For more information on handling `.ptu` files, please refer to slides 5 and 6 of the <a href="https://docs.google.com/presentation/d/1rq5PuOyjQz3sg_ERyIjXMgyj1betNweTIrD1v64-u7o/edit?usp=sharing" target="_blank">online user manual</a>.**
 
 The software can be tested using the  `.sdt` files provided in the  `sample_data` folder. These sample data were used in our publication and involve COS-7 cells stained with SiR-tubulin, treated with 40 µM of Nocodazole. Control data are also included, consisting of images of untreated cells.
 
@@ -98,7 +99,7 @@ There are three different options for importing the data:
 
 *Example: Importing Raw Data and Assigning Experimental Conditions*
 
-  ![import](https://github.com/user-attachments/assets/f7042764-3796-4ca1-ad2f-a277d272c078)
+![condition_assignment_v1 4](https://github.com/user-attachments/assets/b7576e13-c74f-40dd-b6f4-d93d88231342)
 
 
 Please note that FLIMPA currently only accepts single files and does not support the analysis of time-lapse data.
@@ -113,18 +114,22 @@ To run the phasor plot analysis, the following parameters need to be specified:
 - `Number of Time Bins` (*default*: 3x3)
 - `Minimum Photon Count Threshold` (*optional*, at least 100 p.c. per pixel recommended)
 - `Maximum Photon Count Threshold` (*optional*)
+- `Baseline correction` (selecting `True` will remove constant DC noise from the fluorescence decay curve, improving Fourier Transform analysis)
+- `% time bins (baseline corr.)` (*default*: 3.5%, percentage of the initial time bins used for baseline correction)
 
-Note: The reference file is shown only to confirm it was loaded correctly and will not be analyzed. Please do not load sample data with the same name as the reference file.
+Warning: If the true fluorescent signal is present in the initial time bins (due to issues like excessive .ptu file time binning or microscope settings), performing `Baseline correction` correction will subtract signal along with the noise, leading to inaccurate results. To ensure proper use of `Baseline correction` and `% time bins (baseline corr.)` please refer to slide 11 of our <a href="https://docs.google.com/presentation/d/1rq5PuOyjQz3sg_ERyIjXMgyj1betNweTIrD1v64-u7o/edit?usp=sharing" target="_blank">online user manual</a>. 
 
 *Example: Importing Reference file, setting minimum photon counts threshold and running the analysis*
 
-![loading_ref](https://github.com/user-attachments/assets/4436669d-2a9b-48b6-8c64-c5b7a4d1bf50)
+
+![reference_upload_v1 4](https://github.com/user-attachments/assets/205d32d9-488d-4cbb-94b9-ccad854419be)
 
 
 ## Phasor Plot Visualisation 
 FLIMPA enables to visualisation of phasor plots from single images and combined plots from multiple samples.  Additionally three different phasor visualisation options: `scatter` plots, `histograms` and `contour` maps.
 
-![scatter](https://github.com/user-attachments/assets/4f108cd6-a10c-4551-bd65-6d9abb356efd)
+![plot_options_v1 4](https://github.com/user-attachments/assets/b51e1d2f-f068-4ec5-bab9-1d6389661ea6)
+
 
 ## Saving Data
 
@@ -136,8 +141,7 @@ FLIMPA also allows users to export all generated data. This includes:
 - **Statistical Data:** A `.csv` file containing the mean fluorescence lifetime per image can be exported for further statistical analysis.
 
 
-![save-73](https://github.com/user-attachments/assets/7747372c-e5de-40ae-8f2b-1ba320f0418a)
-
+<img width="1644" height="951" alt="save_data-42" src="https://github.com/user-attachments/assets/17e8f17e-5780-4461-9d7c-c76dc6100ff9" />
 
 # Citation
 
