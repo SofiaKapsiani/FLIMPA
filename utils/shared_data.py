@@ -46,11 +46,11 @@ class SharedData:
         ref_file: "None"
         ref_lifetime: 4
 
-        subtract_offset: True # set True to calculate the intensity offset (baseline)
+        subtract_offset: False # set True to calculate the intensity offset (baseline)
         # assumption that first time bins contain only the background signal 
         # calculate average of first time bins and substract them from the rest of the time points
         # as data from different sources may have different number of time bins, provide a fraction 
-        #subtract_offsetRef: True # DEFAULT: choose True to compensate intensity offset for reference data
+        #subtract_offsetRef: False # DEFAULT: choose True to compensate intensity offset for reference data
         fraction_offset: 3.5 # assumption that 3.5 precent of the first time bins are background signal
         mask_samples: False # choose False to mask by intensity or True for import of .tif mask 
 

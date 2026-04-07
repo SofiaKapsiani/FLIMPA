@@ -146,13 +146,14 @@ class LifetimeData(QObject):
                         if sample_count == 0: 
                             show_error_message(self.main_window, "File Error", f"For best visualisation results we recommend files having identical x and y dimensions. \nCurrent dimensions are: {data.shape[1]}x{data.shape[2]}")
 
-                if bin_width != None:
-                    if bin_width == "estimate":
-                        t_series = []
-                    else:
-                        t_series = np.asarray([i*10**(-9) * bin_width for i in range(data.shape[0])], dtype =np.float32)
+                if bin_width is not None and bin_width != "estimate":
+                    # Accurate manual calculation: bin_width (ns) * 1e-9
+                    t_series = np.asarray([i * 1e-9 * float(bin_width) for i in range(data.shape[0])], dtype=np.float32)
+                    print(t_series)
                 else:
-                    raise UnsupportedFileFormatError()
+                    # Mark as empty to trigger frequency estimation in the next step
+                    t_series = np.array([], dtype=np.float32)
+                    print(t_series)
 
             else:
                 raise UnsupportedFileFormatError()
@@ -315,7 +316,7 @@ class LifetimeData(QObject):
         binData = np.reshape(binData, (data.shape[0], -1))  # reshape array stacking x and y dimensions
 
         # subtract offset of the decay curve
-        if self.shared_info.config[offset_type] != "False":
+        if self.shared_info.config[offset_type] != False:
             offset_fraction = float(self.shared_info.config["fraction_offset"])/100
             num_offset_bins = int(offset_fraction * binData.shape[0])
             # get the average photon counts in the first time-bins and subtract this from the rest of the time bins
@@ -363,6 +364,16 @@ class LifetimeData(QObject):
         ref_data, t_series, bins_ref = self.shared_info.ref_files_dict[self.ref_filename].values()
 
         t_series = np.asarray(t_series)
+
+        if t_series.size == 0:
+            freq = float(self.shared_info.config["frequency"]) * 1e6
+            # Calculate resolution: 1 / (laser_freq * number_of_bins)
+            t_resolution = 1 / (freq * ref_data.shape[0])
+            t_series = np.asarray([i * t_resolution for i in range(ref_data.shape[0])], dtype=np.float32)
+            # Update the dictionary so it's saved for later
+            self.shared_info.ref_files_dict[self.ref_filename]['t_series'] = t_series
+
+        print(t_series)
         
         # calculate reference g and s coordinates
         ref_g, ref_s, _, _ = self.calc_Coordinates( data=ref_data, t_series=t_series, bins =bins_ref, min_photons=0,
@@ -418,10 +429,10 @@ class LifetimeData(QObject):
 
         t_series = np.asarray(t_series)
 
-        if t_series.size == 0:  # Check if t_series is empty
-            freq= float(self.shared_info.config["frequency"])*1e6
-            t_resolution = 1 / ( freq* raw_data.shape[0])
-            t_series = np.asarray([i * t_resolution for i in range(raw_data.shape[0])], dtype =np.float32)
+        if t_series.size == 0:
+            freq = float(self.shared_info.config["frequency"]) * 1e6
+            t_resolution = 1 / (freq * raw_data.shape[0])
+            t_series = np.linspace(0, (raw_data.shape[0]-1) * t_resolution, raw_data.shape[0], dtype=np.float32)
             self.shared_info.raw_data_dict[filename]['t_series'] = t_series
             print("bind width estimated as:", t_resolution*10**9, "ns")
   
