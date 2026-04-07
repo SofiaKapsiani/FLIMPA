@@ -7,19 +7,19 @@
 
 <p align="center">
   <strong> ** Please use our latest version </strong> 
-  <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4">
-    FLIMPA (v1.4) </a> **
+  <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.1">
+    FLIMPA (v1.4.1) </a> **
 </p>
 
 **FLIMPA** is an open-source software designed for the phasor plot analysis of raw Time-Correlated Single Photon Counting (TCSPC) Fluorescence Lifetime Imaging Microscopy (FLIM) data.
 <br>
-To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
+To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.1" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
 
 > **FLIMPA: A Versatile Software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis**, published in *Analytical Chemistry*          
 > Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Mona Shehata, Clemens F. Kaminski, Gabriele S. Kaminski Schierle    
 > <a href="https://www.ceb-mng.org/" target="_blank">Molecular Neuroscience Group</a> and <a href="https://laser.ceb.cam.ac.uk/" target="_blank">Laser Analytics Group</a> (University of Cambridge)
 > 
-[[`FLIMPA (1.4)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)] [`user manual (PowerPoint)`](https://docs.google.com/presentation/d/1rq5PuOyjQz3sg_ERyIjXMgyj1betNweTIrD1v64-u7o/edit?usp=sharing)] [[`user manual (PDF)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [[`citation`](#bibtex-citation)]
+[[`FLIMPA (1.4)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.1)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)] [`user manual (PowerPoint)`](https://docs.google.com/presentation/d/1rq5PuOyjQz3sg_ERyIjXMgyj1betNweTIrD1v64-u7o/edit?usp=sharing)] [[`user manual (PDF)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [[`citation`](#bibtex-citation)]
 
 
 ##  Features
@@ -40,7 +40,7 @@ To run the software, please download the executable (<a href="https://github.com
 
 # Installation
 
-FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
+FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.1" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
 
 1. **Download the repository**
     ```bash
