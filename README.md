@@ -19,7 +19,7 @@ To run the software, please download the executable (<a href="https://github.com
 > Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Mona Shehata, Clemens F. Kaminski, Gabriele S. Kaminski Schierle    
 > <a href="https://www.ceb-mng.org/" target="_blank">Molecular Neuroscience Group</a> and <a href="https://laser.ceb.cam.ac.uk/" target="_blank">Laser Analytics Group</a> (University of Cambridge)
 > 
-[[`FLIMPA (1.4)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)] [`user manual (PowerPoint)`](https://docs.google.com/presentation/d/1rq5PuOyjQz3sg_ERyIjXMgyj1betNweTIrD1v64-u7o/edit?usp=sharing)] [[`user manual (PDF)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [[`citation`](#bibtex-citation)]
+[[`FLIMPA (1.4.2)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)] [`user manual (PowerPoint)`](https://docs.google.com/presentation/d/1EI7sXPCHtFKzIoXbomWdI95hRj6MSl2IH-kWcBbJaBY/edit?usp=sharing)] [[`user manual (PDF)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [[`citation`](#bibtex-citation)]
 
 
 ##  Features
