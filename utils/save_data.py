@@ -9,6 +9,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.patches import Patch
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.gridspec import GridSpec
+from utils.colormaps import resolve_lifetime_cmap
 
 def save_tau(output_dir, progress_dialog,  lifetime_type, results_dict, config):
     """
@@ -51,14 +52,14 @@ def save_tau(output_dir, progress_dialog,  lifetime_type, results_dict, config):
                 tau_img = data.astype('float')
                 tau_img[tau_img == 0] = np.nan  # Handle NaNs
 
-                img_plot = ax.imshow(tau_img, cmap='gist_rainbow_r', 
+                tau_cmap = resolve_lifetime_cmap(config)
+                img_plot = ax.imshow(tau_img, cmap=tau_cmap,
                                     vmin=float(config["lifetime_vmin"]), vmax=float(config["lifetime_vmax"]))
-                
-                # Optional: integrate lifetime image with intensity image
+
                 if config["lifetime_itegrate"] == "True":
                     intensity = results_dict[filename]["sample_data"].sum(0)
                     ax.imshow(intensity, cmap='gray', vmin=0, vmax=int(intensity[intensity != 0].max() - intensity[intensity != 0].mean()), alpha=0.5)
-                
+
                 ax.patch.set_facecolor((0, 0, 0, 1.0))
 
                 divider = make_axes_locatable(ax)
@@ -122,6 +123,7 @@ def save_gallery_view(output_dir, progress_dialog, file_name, data_dict, config)
         fig = plt.figure(figsize=(fig_width, fig_height))
         gs = GridSpec(rows + 1, cols, height_ratios=[1] * rows + [0.05], figure=fig)
         images = []  # List to store the images for colorbar reference
+        tau_cmap = resolve_lifetime_cmap(config)
 
         # Create a black background image
         dim_img = int(np.sqrt(next(iter(data_dict.values()))[config["lifetime_map"]].shape))
@@ -140,12 +142,11 @@ def save_gallery_view(output_dir, progress_dialog, file_name, data_dict, config)
             ax_gal.imshow(black_background, cmap='gray', aspect='equal', vmin=0, vmax=1)
 
             # Overlay the tau_img on top of the black background
-            im = ax_gal.imshow(tau_img, cmap='gist_rainbow_r', aspect='equal',
+            im = ax_gal.imshow(tau_img, cmap=tau_cmap, aspect='equal',
                             vmin=float(config["lifetime_vmin"]),
                             vmax=float(config["lifetime_vmax"]))
-            intensity = data_dict[key]["sample_data"].sum(0)
-            # optional: integrate lifetime image with intensity image
             if config.get("lifetime_itegrate") == "True":
+                intensity = data_dict[key]["sample_data"].sum(0)
                 ax_gal.imshow(intensity, cmap='gray', vmin=0,
                             vmax=int(intensity[intensity != 0].max() - intensity[intensity != 0].mean()),
                             alpha=0.5)
@@ -340,3 +341,33 @@ def save_df_csv(output_dir, df_stats):
         os.makedirs(output_dir)
     df_export = df_stats.drop(columns=['M_mean', 'phi_mean', 'average_mean'], errors='ignore')
     df_export.to_csv(os.path.join(output_dir, "lifetime_values.csv"))
+
+
+def save_phasor_points_csv(path, results_entry, filename: str | None = None):
+    """
+    Export per-pixel G/S phasor coordinates for one analysed file.
+
+    Keeps the same non-zero filter as the phasor scatter plot. Columns: G, S, row, col.
+    """
+    g = np.asarray(results_entry["g"], dtype=np.float64).ravel()
+    s = np.asarray(results_entry["s"], dtype=np.float64).ravel()
+    img_shape = results_entry.get("img_shape")
+    if img_shape is None or len(img_shape) < 3:
+        raise ValueError("Missing img_shape for phasor point export.")
+    ny, nx = int(img_shape[1]), int(img_shape[2])
+    if g.size != ny * nx or s.size != ny * nx:
+        raise ValueError("G/S length does not match image shape.")
+
+    keep = (g != 0) & (s != 0)
+    idx = np.flatnonzero(keep)
+    rows = idx // nx
+    cols = idx % nx
+
+    parent = os.path.dirname(path)
+    if parent and not os.path.exists(parent):
+        os.makedirs(parent)
+
+    header = "G,S,row,col"
+    data = np.column_stack((g[idx], s[idx], rows, cols))
+    np.savetxt(path, data, delimiter=",", header=header, comments="", fmt="%.10g")
+    return path

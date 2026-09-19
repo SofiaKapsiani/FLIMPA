@@ -4,10 +4,13 @@ from PySide6.QtGui import QColor
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.gridspec import GridSpec
-from scipy.ndimage import measurements
 import seaborn as sns
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from utils.shared_data import SharedData 
+from utils.colormaps import resolve_lifetime_cmap
+from utils.fret_calc import compute_fret_efficiency
+from utils.mask_viz import draw_mask_overlay
+from utils.plot_pan import apply_image_limits, capture_image_limits
 import warnings
 
 # Suppress specific warnings
@@ -26,6 +29,9 @@ class PlotImages():
         # lifetime images (single)
         self.canvas_tau = self.main_window.canvas_tau
         self.figure_tau  = self.main_window.figure_tau
+        # FRET efficiency map
+        self.canvas_fret = self.main_window.canvas_fret
+        self.figure_fret = self.main_window.figure_fret
         # lifetime gallery images
         self.canvas_gallery = self.main_window.canvas_gallery
         self.figure_gallery  = self.main_window.figure_gallery
@@ -79,6 +85,7 @@ class PlotImages():
             # Ensure the canvas is properly updated
             self.canvas.draw()
             self.canvas.updateGeometry()
+            self.main_window.helpers.update_select_all_button_label()
 
             # Update the parent widget layout to ensure proper placement
             self.canvas.parent().updateGeometry()
@@ -110,6 +117,7 @@ class PlotImages():
                 self.shared_info.raw_data_dict[filename]['analyse'] = 'yes'
             else:
                 self.shared_info.raw_data_dict[filename]['analyse'] = 'no'
+            self.main_window.helpers.update_select_all_button_label()
 
 
     def displaySelectedImage(self, item):
@@ -121,19 +129,27 @@ class PlotImages():
             self.plot_img()
     
 
-    def plot_img(self):
+    def plot_img(self, preserve_mask_tool=False):
         '''Function for image and mask plotting'''
+        saved_limits = capture_image_limits(self.canvas) if preserve_mask_tool else None
         self.figure.clear()
 
         data = self.shared_info.intensity_img_dict[self.shared_info.config["selected_file"]]
         masked_image = data['mask']
         intensity_image = data['intensity_image']
-        manual_mask = self.shared_info.raw_data_dict[self.shared_info.config["selected_file"]]['mask_arr']
-        
 
         ax = self.figure.add_subplot(111)  # Add a subplot to the figure
         ax.set_xticks([])
         ax.set_yticks([])
+
+        self.main_window.mask_editor.load_mask_for_current_file()
+        self.main_window.mask_editor.set_axes(ax)
+        if not preserve_mask_tool:
+            self.main_window.mask_editor.deactivate()
+
+        manual_mask = self.shared_info.raw_data_dict[self.shared_info.config["selected_file"]]['mask_arr']
+        if manual_mask is None and self.main_window.mask_editor.mask is not None:
+            manual_mask = self.main_window.mask_editor.mask
 
         # Display the image on the axes
         img_plot = ax.imshow(intensity_image, cmap='gray')
@@ -146,22 +162,9 @@ class PlotImages():
         cbar =self.figure.colorbar(img_plot, cax=cax, orientation='vertical')
         cbar.ax.tick_params(colors='white', labelsize=8)
 
-        # display manual masks if present
-        if manual_mask is not None:
-            colors_m = [(186/255, 219/255, 219/255, 0),  # fully transparent (for zero)
-                (186/255, 219/255, 219/255, 1)] # fully opaque (for non-zero) 
-            cmap_m = LinearSegmentedColormap.from_list("custom_red", colors_m, N=2)
-            m_masked_image_prepared = np.where(manual_mask > 0, 1, 0)
-            # Display the masked_image with the custom colormap
-            ax.imshow(m_masked_image_prepared, cmap=cmap_m, alpha=0.35)
-            for region in np.unique(manual_mask):
-                if region == 0:
-                    continue  # Skip background
-                region_mask = (manual_mask == region)
-                centroid = measurements.center_of_mass(region_mask)
-                ax.text(centroid[1], centroid[0], str(int(region)), color='white', fontsize=8, ha='center', va='center')
+        draw_mask_overlay(ax, manual_mask)
 
-        # Define a custom colormap for the masked image
+        # Define a custom colormap for the photon threshold mask
         colors = [(60/255, 162/255, 161/255, 0),  # fully transparent (for zero)
                 (60/255, 162/255, 161/255, 1)] # fully opaque (for non-zero) 
         cmap = LinearSegmentedColormap.from_list("custom_red", colors, N=2)
@@ -173,12 +176,23 @@ class PlotImages():
             # Display the masked_image with the custom colormap
             ax.imshow(masked_image_prepared, cmap=cmap, alpha=0.35)
         
+        apply_image_limits(ax, saved_limits)
+
+        editor = self.main_window.mask_editor
+        if preserve_mask_tool and editor._tool == "inspect":
+            editor._setup_inspect()
+        elif preserve_mask_tool and editor._tool == "brush":
+            editor._setup_brush()
+        elif preserve_mask_tool and editor._inspect_xy is not None:
+            editor._draw_inspect_marker()
+
         self.canvas.draw()
         self.canvas.figure.tight_layout()
 
 
-    def plot_tau_map(self, masked_image= None):
+    def plot_tau_map(self, masked_image=None, preserve_mask_tool=False):
         '''Function for plotting lifetime maps'''
+        saved_limits = capture_image_limits(self.canvas_tau) if preserve_mask_tool else None
         self.figure_tau.clear()
         tau = self.shared_info.results_dict.get(self.shared_info.config["selected_file"])[self.shared_info.config["lifetime_map"]]
         x_dim, y_dim = self.shared_info.results_dict.get(self.shared_info.config["selected_file"])['img_shape'][1:] # get x and y dim
@@ -190,17 +204,28 @@ class PlotImages():
         ax = self.figure_tau.add_subplot(111)  # Add a subplot to the figure
         ax.set_xticks([])
         ax.set_yticks([])
+
+        self.main_window.mask_editor.load_mask_for_current_file()
+        self.main_window.mask_editor.set_axes(ax)
+        if not preserve_mask_tool:
+            self.main_window.mask_editor.deactivate()
+
+        manual_mask = self.shared_info.raw_data_dict.get(
+            self.shared_info.config["selected_file"], {}
+        ).get("mask_arr")
+        if manual_mask is None and self.main_window.mask_editor.mask is not None:
+            manual_mask = self.main_window.mask_editor.mask
+
         # Display the image on the axes
-        img_plot = ax.imshow(tau_img, cmap='gist_rainbow_r', 
+        tau_cmap = resolve_lifetime_cmap(self.shared_info.config)
+        img_plot = ax.imshow(tau_img, cmap=tau_cmap,
                              vmin=float(self.shared_info.config["lifetime_vmin"]), vmax=float(self.shared_info.config["lifetime_vmax"]))
         ax.set_title(self.shared_info.config["selected_file"], color='white', fontsize=10)
-        
-        # optional: integrate lifetime image with intensity image
+
+        # optional: overlay integrated intensity (sum over time channels) on the lifetime map
         if self.shared_info.config["lifetime_itegrate"] == "True":
-            intenisty = self.shared_info.results_dict.get(self.shared_info.config["selected_file"])["sample_data"].sum(0)
-            ax.imshow(intenisty, cmap='gray', vmin=0, vmax=int(intenisty[intenisty!=0].max()-intenisty[intenisty!=0].mean()),  alpha = 0.6)
-        else:
-            pass
+            intensity = self.shared_info.results_dict.get(self.shared_info.config["selected_file"])["sample_data"].sum(0)
+            ax.imshow(intensity, cmap='gray', vmin=0, vmax=int(intensity[intensity!=0].max()-intensity[intensity!=0].mean()),  alpha = 0.6)
 
         ax.patch.set_facecolor((0, 0, 0, 1.0))
 
@@ -211,20 +236,105 @@ class PlotImages():
         cbar =self.figure_tau.colorbar(img_plot, cax=cax, orientation='vertical',)
         cbar.ax.tick_params(colors='white', labelsize=8)
 
-        if masked_image is not None: # Define a custom colormap for the masked image
-            colors = [(0, 0, 0, 1),  
-                    (0, 0, 0, 0)] 
-            cmap = LinearSegmentedColormap.from_list("custom_black", colors, N=2)
+        draw_mask_overlay(ax, manual_mask)
 
+        if masked_image is not None:
+            # Phasor ROI overlay: semi-transparent black outside selection (not analysis masking)
+            colors = [(0, 0, 0, 1), (0, 0, 0, 0)]
+            cmap_roi = LinearSegmentedColormap.from_list("custom_black", colors, N=2)
             masked_image_prepared = np.reshape(masked_image, (x_dim, y_dim))
-            
-            # Display the masked_image with the custom colormap
-            ax.imshow(masked_image_prepared, cmap=cmap, alpha=0.8)
+            ax.imshow(masked_image_prepared, cmap=cmap_roi, alpha=0.8)
 
+        apply_image_limits(ax, saved_limits)
+
+        editor = self.main_window.mask_editor
+        if preserve_mask_tool and editor._tool == "inspect":
+            editor._setup_inspect()
+        elif preserve_mask_tool and editor._tool == "brush":
+            editor._setup_brush()
+        elif preserve_mask_tool and editor._inspect_xy is not None:
+            editor._draw_inspect_marker()
 
         self.canvas_tau.draw()
         self.canvas_tau.figure.tight_layout()
-    
+
+    def plot_fret_map(self, preserve_mask_tool=False):
+        """Plot FRET efficiency map: E = 1 - tau/tau_D (tau_D from ref_lifetime)."""
+        saved_limits = capture_image_limits(self.canvas_fret) if preserve_mask_tool else None
+        self.figure_fret.clear()
+
+        selected = self.shared_info.config.get("selected_file")
+        if not selected or selected not in self.shared_info.results_dict:
+            ax = self.figure_fret.add_subplot(111)
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.text(
+                0.5,
+                0.5,
+                "Run phasor analysis to compute FRET",
+                ha="center",
+                va="center",
+                color="white",
+                transform=ax.transAxes,
+            )
+            ax.patch.set_facecolor((0, 0, 0, 1.0))
+            self.canvas_fret.draw()
+            return
+
+        tau = self.shared_info.results_dict[selected][self.shared_info.config["lifetime_map"]]
+        x_dim, y_dim = self.shared_info.results_dict[selected]["img_shape"][1:]
+
+        tau_ns = np.reshape(tau * 1e9, (x_dim, y_dim)).astype("float")
+        tau_fluorophore_ns = float(self.shared_info.config.get("ref_lifetime", 4) or 4)
+        fret_img = compute_fret_efficiency(tau_ns, tau_fluorophore_ns)
+
+        ax = self.figure_fret.add_subplot(111)
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+        self.main_window.mask_editor.load_mask_for_current_file()
+        self.main_window.mask_editor.set_axes(ax)
+        if not preserve_mask_tool:
+            self.main_window.mask_editor.deactivate()
+
+        manual_mask = self.shared_info.raw_data_dict.get(selected, {}).get("mask_arr")
+        if manual_mask is None and self.main_window.mask_editor.mask is not None:
+            manual_mask = self.main_window.mask_editor.mask
+
+        img_plot = ax.imshow(
+            fret_img,
+            cmap="viridis",
+            vmin=float(self.shared_info.config["fret_vmin"]),
+            vmax=float(self.shared_info.config["fret_vmax"]),
+        )
+        ax.set_title(
+            f"{selected}  (E = 1 - τ/τ_D, τ_D = {tau_fluorophore_ns:g} ns)",
+            color="white",
+            fontsize=10,
+        )
+
+        ax.patch.set_facecolor((0, 0, 0, 1.0))
+
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+        cbar = self.figure_fret.colorbar(img_plot, cax=cax, orientation="vertical")
+        cbar.set_label("FRET efficiency (E)", color="white", fontsize=8)
+        cbar.ax.tick_params(colors="white", labelsize=8)
+
+        draw_mask_overlay(ax, manual_mask)
+        apply_image_limits(ax, saved_limits)
+
+        editor = self.main_window.mask_editor
+        if preserve_mask_tool and editor._tool == "inspect":
+            editor._setup_inspect()
+        elif preserve_mask_tool and editor._tool == "brush":
+            editor._setup_brush()
+        elif preserve_mask_tool and editor._inspect_xy is not None:
+            editor._draw_inspect_marker()
+
+        self.canvas_fret.draw()
+        self.canvas_fret.figure.tight_layout()
+
     
     
 
@@ -261,6 +371,7 @@ class PlotImages():
 
         gs = GridSpec(rows + 1, cols, height_ratios=[1] * rows + [0.05], figure=self.figure_gallery)
         images = []  # List to store the images for colorbar reference
+        tau_cmap = resolve_lifetime_cmap(self.shared_info.config)
 
         for i, key in enumerate(data_dict):
             row = i // cols
@@ -272,15 +383,15 @@ class PlotImages():
             tau_img = np.reshape(tau * 1e9, (x_dim, y_dim))
             tau_img[tau_img == 0] = np.nan  # Handle NaNs
 
-            im = ax_gal.imshow(tau_img, cmap='gist_rainbow_r',
+            im = ax_gal.imshow(tau_img, cmap=tau_cmap,
                             vmin=float(self.shared_info.config["lifetime_vmin"]),
                             vmax=float(self.shared_info.config["lifetime_vmax"]))
 
-            # optional: integrate lifetime image with intensity image
+            # optional: overlay integrated intensity on the lifetime gallery
             if self.shared_info.config["lifetime_itegrate"] == "True":
-                intenisty = data_dict[key]["sample_data"].sum(0)
-                ax_gal.imshow(intenisty, cmap='gray', vmin=0,
-                            vmax=int(intenisty[intenisty != 0].max() - intenisty[intenisty != 0].mean()),
+                intensity = data_dict[key]["sample_data"].sum(0)
+                ax_gal.imshow(intensity, cmap='gray', vmin=0,
+                            vmax=int(intensity[intensity != 0].max() - intensity[intensity != 0].mean()),
                             alpha=0.5)
 
             images.append(im)  # Add the image to the list

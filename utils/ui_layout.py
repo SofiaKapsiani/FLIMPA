@@ -1,7 +1,11 @@
 from PySide6.QtWidgets import (QVBoxLayout, QHBoxLayout, QGroupBox, QPushButton,
-                                QTableWidget, QWidget, QTabWidget, QSizePolicy, QScrollArea)
+                                QTableWidget, QWidget, QTabWidget, QSizePolicy, QScrollArea,
+                                QMessageBox, QDialog, QLabel)
+from PySide6.QtCore import Qt
 from utils.helper_functions import Helpers
 from utils.run_analysis import Analysis
+from utils.mask_instruments import wrap_plot_with_instruments
+from utils.auto_segmentation import AUTO_SEGMENT_UI_ENABLED
 
 """File for providing the UI layout"""
 
@@ -11,6 +15,32 @@ class UILayout:
         self.tabs_widget = QTabWidget()
         self.helpers = Helpers(self.main_window) # import helper functions
         self.analysis = Analysis(self.main_window)
+
+    def run_auto_segmentation(self):
+        """Launch AutoSegmentDialog and apply result via mask_editor.run_auto_segmentation."""
+        if not AUTO_SEGMENT_UI_ENABLED:
+            return
+
+        from utils.mask_segment_dialog import AutoSegmentDialog
+
+        editor = self.main_window.mask_editor
+        if not editor.shared_info.config.get("selected_file"):
+            QMessageBox.warning(self.main_window, "Auto segment", "Select a file in the table first.")
+            return
+
+        editor.load_mask_for_current_file()
+        dialog = AutoSegmentDialog(self.main_window)
+        if dialog.exec() != QDialog.Accepted:
+            return
+
+        algorithm, params = dialog.get_params()
+        ok = editor.run_auto_segmentation(algorithm, params)
+        if not ok:
+            QMessageBox.information(
+                self.main_window,
+                "Auto segment",
+                "No regions were found. Try different parameters or draw manually.",
+            )
 
     def prepareLayout(self):
 
@@ -68,11 +98,34 @@ class UILayout:
         tabs_visualise_imgs = QWidget()
         tabs_visualise_imgs.setStyleSheet("QWidget { background-color: rgb(18, 18, 18); }")
         layout_tabs = QVBoxLayout()
-        layout_tabs.addWidget(self.main_window.canvas) # add figure for displaying intensity image
+        layout_tabs.setContentsMargins(0, 0, 0, 0)
+        self.intensity_plot = wrap_plot_with_instruments(
+            self.main_window.canvas, self.main_window, self
+        )
+        layout_tabs.addWidget(self.intensity_plot, 1)
+        layout_tabs.addLayout(
+            self.main_window.tab_settings.input_layout(box_type="intensity_box"), 0
+        )
         tabs_visualise_imgs.setLayout(layout_tabs)
         
         # initate tabs widget and define style
         self.tabs_widget.addTab(tabs_visualise_imgs, "Intensity display")
+
+        fret_tab = QWidget()
+        fret_tab.setStyleSheet("QWidget { background-color: rgb(18, 18, 18); }")
+        self.layout_fret = QVBoxLayout()
+        self.layout_fret.setContentsMargins(0, 0, 0, 0)
+        self.fret_plot = wrap_plot_with_instruments(
+            self.main_window.canvas_fret, self.main_window, self
+        )
+        self.layout_fret.addWidget(self.fret_plot, 1)
+        self.layout_fret.addLayout(
+            self.main_window.tab_settings.input_layout(box_type="fret_box"), 0
+        )
+        fret_tab.setLayout(self.layout_fret)
+        self.main_window.plotImages.plot_fret_map()
+        self.tabs_widget.addTab(fret_tab, "FRET")
+
         self.tabs_widget.setStyleSheet("""
             QTabWidget::pane { /* The tab widget frame */
                 border: 1px solid rgb(18, 18, 18);}
@@ -98,15 +151,23 @@ class UILayout:
         table_filenames.addWidget(self.main_window.fileTable, 14)
         
 
+        # Select all / Deselect all — toggles analyse checkboxes (included in phasor run), not display
+        select_all_files_button = QPushButton("Deselect all")
+        select_all_files_button.setStyleSheet('QPushButton {color: white}')
+        select_all_files_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        select_all_files_button.clicked.connect(self.helpers.toggle_all_file_selection)
+        self.main_window.select_all_files_button = select_all_files_button
+
         # button to delete imported files not needed for the analysis
         delete_files_button = QPushButton("Delete selected files")
         delete_files_button.setStyleSheet('QPushButton {color: white}')
         delete_files_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding) 
         delete_files_button.clicked.connect(self.helpers.delete_selected_files)
 
-        # create a vertical layout for the delete button to center it
+        # create a vertical layout for the file action buttons
         delete_v_layout = QVBoxLayout()
         delete_v_layout.addStretch(1)
+        delete_v_layout.addWidget(select_all_files_button)
         delete_v_layout.addWidget(delete_files_button)
         delete_v_layout.addStretch(1)
         # add delete button under filenames table

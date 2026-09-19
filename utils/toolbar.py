@@ -1,17 +1,28 @@
 import os
 from PySide6.QtWidgets import (QStatusBar, QMenuBar, QFileDialog, QInputDialog, QFileDialog, QLineEdit, QLabel,QPushButton,
-                               QProgressDialog, QApplication, QMessageBox, QComboBox, QVBoxLayout, QDialogButtonBox, QDialog)
+                               QProgressDialog, QApplication, QMessageBox, QComboBox, QVBoxLayout, QDialogButtonBox, QDialog,
+                               QRadioButton, QButtonGroup, QHBoxLayout, QWidget)
 from PySide6.QtGui import QDoubleValidator
 
 from PySide6.QtCore import Qt, QTimer
 import numpy as np
 from pathlib import Path
 from utils.lifetime_cal import LifetimeData
-from utils.mainwindow import *
 from utils.shared_data import SharedData
 from utils import save_data 
 from utils.plot_imgs import PlotImages
 from utils.errors import DataProcessingError
+from utils.colormaps import LIFETIME_CMAP_PRESETS, clear_custom_colormap_cache
+from utils.mask_io import (
+    apply_mask_to_sample,
+    default_mask_filename,
+    ensure_tif_path,
+    file_stem,
+    MASK_KIND_POLYGON,
+    save_mask_tif,
+)
+
+_MASK_SAVE_FILTER = "TIFF mask (*.tif *.tiff);;All files (*.*)"
 
 
 class ToolBarComponents:
@@ -60,8 +71,18 @@ class ToolBarComponents:
         import_ref = file_menu.addAction("Import IRF")
         import_ref.triggered.connect(self.load_irf_file)
 
+        # Manual masking
+        mask_menu = menu_bar.addMenu("Mask save")
+        save_roi_mask = mask_menu.addAction("Save ROI mask (from phasor)...")
+        save_roi_mask.triggered.connect(self.save_roi_mask)
+        mask_menu.addSeparator()
+        save_polygon_mask = mask_menu.addAction("Save manual mask (polygon)...")
+        save_polygon_mask.triggered.connect(self.save_manual_mask)
+        clear_mask = mask_menu.addAction("Clear manual mask for selected file")
+        clear_mask.triggered.connect(self.clear_manual_mask)
+
         # save data
-        file_menu = menu_bar.addMenu("&Save")
+        file_menu = menu_bar.addMenu("Save data")
         save_tau = file_menu.addAction("Save lifetime maps")
         save_tau.triggered.connect(self.save_tau_maps)
         save_gallery_tau = file_menu.addAction("Save lifetime gallery")
@@ -81,7 +102,145 @@ class ToolBarComponents:
         file_menu.addSeparator()
         export_cv = file_menu.addAction("Export lifetime values table")
         export_cv.triggered.connect(self.save_csv)
-        
+        export_phasor_pts = file_menu.addAction("Export phasor points (G,S)...")
+        export_phasor_pts.triggered.connect(self.save_phasor_points_csv)
+
+        # Colormap widgets (Intensity display Settings) and Baseline check (Lifetime maps Settings)
+        self.setup_analysis_controls()
+
+    def setup_analysis_controls(self):
+        """Create colormap widgets and Baseline check (placed in tab Settings, not a toolbar)."""
+        self.cmap_combo = QComboBox()
+        self.cmap_combo.addItems(LIFETIME_CMAP_PRESETS + ["Custom"])
+        self.cmap_combo.setFixedWidth(150)
+        self.cmap_combo.setEditable(False)
+        self.cmap_combo.setCurrentText(self.shared_info.config.get("lifetime_cmap", "Rainbow"))
+        self.cmap_combo.setToolTip("Lifetime / phasor colour scale")
+        self.cmap_combo.currentIndexChanged.connect(self._on_colormap_preset_changed)
+        self.cmap_combo.setStyleSheet("""
+            QComboBox {
+                background-color: rgb(63, 63, 63);
+                color: white;
+                padding: 2px 6px;
+                min-height: 22px;
+            }
+        """)
+
+        self.load_custom_cmap_btn = QPushButton("Load custom...")
+        self.load_custom_cmap_btn.setToolTip("Load a custom colormap from CSV/TXT or an image strip.")
+        self.load_custom_cmap_btn.clicked.connect(self._on_load_custom_colormap)
+        self.load_custom_cmap_btn.setStyleSheet("""
+            QPushButton {
+                color: white;
+                background-color: rgb(55, 55, 55);
+                border: 1px solid rgb(70, 70, 70);
+                border-radius: 3px;
+                padding: 4px 10px;
+            }
+            QPushButton:hover {
+                background-color: rgb(70, 70, 70);
+            }
+        """)
+
+        self.baseline_check_action = QPushButton("Baseline check")
+        self.baseline_check_action.setCheckable(True)
+        self.baseline_check_action.setToolTip(
+            "Click pixels on Lifetime maps to inspect decay curves "
+            "(uses Pixel block size)."
+        )
+        self.baseline_check_action.toggled.connect(self._on_baseline_check_toggled)
+        self.baseline_check_action.setStyleSheet("""
+            QPushButton {
+                color: white;
+                background-color: rgb(55, 55, 55);
+                border: 1px solid rgb(70, 70, 70);
+                border-radius: 3px;
+                padding: 4px 10px;
+            }
+            QPushButton:hover {
+                background-color: rgb(70, 70, 70);
+            }
+            QPushButton:checked {
+                background-color: rgb(60, 162, 161);
+                border-color: rgb(60, 162, 161);
+            }
+        """)
+
+    def _on_colormap_preset_changed(self):
+        name = self.cmap_combo.currentText()
+        self.shared_info.config["lifetime_cmap"] = name
+        self._refresh_lifetime_colormap()
+
+    def _on_load_custom_colormap(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self.main_window,
+            "Select custom colormap",
+            "",
+            "Colormap files (*.csv *.txt *.png *.jpg *.jpeg *.tif *.tiff);;All files (*)",
+        )
+        if not path:
+            return
+        clear_custom_colormap_cache()
+        self.shared_info.config["lifetime_cmap_file"] = path
+        self.shared_info.config["lifetime_cmap"] = "Custom"
+        self.cmap_combo.blockSignals(True)
+        self.cmap_combo.setCurrentText("Custom")
+        self.cmap_combo.blockSignals(False)
+        self._refresh_lifetime_colormap()
+
+    def _refresh_lifetime_colormap(self):
+        """Redraw lifetime maps / gallery / phasor after a colormap change."""
+        if not self.shared_info.results_dict:
+            return
+        selected = self.shared_info.config.get("selected_file")
+        if selected and selected in self.shared_info.results_dict:
+            self.main_window.plotImages.plot_tau_map()
+            if not getattr(self.main_window.phasor_componets, "_is_gallery_active", lambda: False)():
+                self.main_window.phasor_componets.plot_phasor_coordinates()
+
+        tabs = getattr(self.main_window.ui_layout, "tabs_widget", None)
+        gallery_tab = False
+        if tabs is not None:
+            for i in range(tabs.count()):
+                if tabs.tabText(i) == "Gallery (tau)":
+                    gallery_tab = True
+                    break
+        if gallery_tab:
+            self.main_window.plotImages.gallery_imgs(data_dict=self.shared_info.results_dict)
+            if getattr(self.main_window.phasor_componets, "_is_gallery_active", lambda: False)():
+                if self.shared_info.phasor_settings.get("plot_type") == "individual":
+                    self.main_window.phasor_componets.plot_phasor_gallery_individual(
+                        data_dict=self.shared_info.results_dict
+                    )
+                else:
+                    self.main_window.phasor_componets.plot_phasor_gallery_condition(
+                        data_dict=self.shared_info.results_dict
+                    )
+
+    def _on_baseline_check_toggled(self, enabled: bool):
+        editor = getattr(self.main_window, "mask_editor", None)
+        if editor is None:
+            return
+        if enabled:
+            editor.activate_tool("inspect")
+            if editor._tool != "inspect":
+                self.baseline_check_action.blockSignals(True)
+                self.baseline_check_action.setChecked(False)
+                self.baseline_check_action.blockSignals(False)
+        elif editor._tool == "inspect":
+            editor.deactivate()
+
+    def sync_baseline_check_ui(self):
+        """Keep the Baseline check button in sync with the mask editor tool."""
+        editor = getattr(self.main_window, "mask_editor", None)
+        if editor is None or not hasattr(self, "baseline_check_action"):
+            return
+        checked = editor._tool == "inspect"
+        if self.baseline_check_action.isChecked() != checked:
+            self.baseline_check_action.blockSignals(True)
+            self.baseline_check_action.setChecked(checked)
+            self.baseline_check_action.blockSignals(False)
+
     def setup_statusbar(self):
         self.main_window.setStatusBar(QStatusBar(self.main_window))
 
@@ -221,18 +380,43 @@ class ToolBarComponents:
         return fnames
 
 
+    def _pick_mask_source(self):
+        """After raw import: ask folder vs individual mask TIFFs (see README.md, Masking)."""
+        dialog = MaskImportSourceDialog(self.main_window)
+        if dialog.exec() != QDialog.Accepted:
+            return None
+
+        if dialog.mode == "folder":
+            masks_dir = QFileDialog.getExistingDirectory(
+                self.main_window,
+                "Select folder containing mask TIFF files",
+            )
+            if not masks_dir:
+                return None
+            return ("folder", masks_dir)
+
+        mask_files, _ = QFileDialog.getOpenFileNames(
+            self.main_window,
+            "Select one or more mask TIFF files",
+            "",
+            _MASK_SAVE_FILTER,
+        )
+        if not mask_files:
+            return None
+        return ("files", mask_files)
+
     def load_masks(self):
-        # Select one or more files to open
+        """Import raw FLIM data and pair each file with a mask from folder or selected TIFFs."""
         fnames, _ = QFileDialog.getOpenFileNames(self.main_window, "Select one or more files to open")
         if not fnames:
             return  # Cancel if no files are selected
 
-        # Select the folder where manual masks are stored
-        masks_dir = QFileDialog.getExistingDirectory(self.main_window, "Select the folder where manual masks are stored")
-        if not masks_dir:
-            return  # Cancel if no directory is selected
+        mask_source = self._pick_mask_source()
+        if mask_source is None:
+            return
 
-        print([Path(x).stem for x in fnames], masks_dir)
+        source_kind, source_value = mask_source
+        print([Path(x).stem for x in fnames], source_kind, source_value)
 
         # Create a progress dialog
         progress_dialog = QProgressDialog("Loading mask files...", "", 0, len(fnames), self.main_window)
@@ -263,7 +447,14 @@ class ToolBarComponents:
                     data, t_series = LifetimeData(self.main_window, self.app).load_raw_data(fname, bin_width, sample_count = i)
                     
                     filename_original = Path(fname).stem
-                    masked_data, mask_arr = LifetimeData(self.main_window, self.app).mask_data(masks_dir, filename_original, data)
+                    if source_kind == "folder":
+                        masked_data, mask_arr = LifetimeData(self.main_window, self.app).mask_data(
+                            filename_original, data, masks_dir=source_value
+                        )
+                    else:
+                        masked_data, mask_arr = LifetimeData(self.main_window, self.app).mask_data(
+                            filename_original, data, mask_files=source_value
+                        )
                     
                     # Check if entry is duplicate and if so rename it
                     filename = self.handle_duplicates(filename_original)
@@ -631,6 +822,155 @@ class ToolBarComponents:
         else:
             return
 
+    def save_phasor_points_csv(self):
+        """Export G/S (and row/col) after choosing which analysed file to export."""
+        if not self.shared_info.results_dict:
+            self.save_error_message("Error", "No data has been generated, please run phasor analysis first.")
+            return
+
+        files = list(self.shared_info.results_dict.keys())
+        current = self.shared_info.config.get("selected_file")
+        default_index = files.index(current) if current in files else 0
+        selected, ok = QInputDialog.getItem(
+            self.main_window,
+            "Export phasor points (G,S)",
+            "Select file to export:",
+            files,
+            default_index,
+            False,
+        )
+        if not ok or not selected:
+            return
+
+        suggested = f"{file_stem(selected)}_phasor_points.csv"
+        path, _ = QFileDialog.getSaveFileName(
+            self.main_window,
+            "Export phasor points (G,S)",
+            suggested,
+            "CSV (*.csv);;All files (*.*)",
+        )
+        if not path:
+            return
+        if not str(path).lower().endswith(".csv"):
+            path = f"{path}.csv"
+
+        try:
+            save_data.save_phasor_points_csv(path, self.shared_info.results_dict[selected], selected)
+        except Exception as e:
+            self.save_error_message("Export failed", str(e))
+            return
+
+        QMessageBox.information(
+            self.main_window,
+            "Phasor points exported",
+            f"Saved G/S points for {selected}:\n{path}",
+        )
+
+    def save_roi_mask(self):
+        """Save phasor ellipse selection as {name}_mask_ROI.tif."""
+        selected = self.shared_info.config.get("selected_file")
+        if not selected or selected not in self.shared_info.results_dict:
+            self.save_error_message("ROI mask", "Run analysis and select a sample file first.")
+            return
+
+        mask = self.main_window.phasor_componets.build_roi_mask_2d()
+        if mask is None or mask.max() == 0:
+            self.save_error_message(
+                "ROI mask",
+                "Draw an ROI on the phasor plot first (ROI button, then drag an ellipse).",
+            )
+            return
+
+        suggested = default_mask_filename(file_stem(selected), "ROI")
+        path, _ = QFileDialog.getSaveFileName(
+            self.main_window,
+            "Save ROI mask",
+            suggested,
+            _MASK_SAVE_FILTER,
+        )
+        if not path:
+            return
+
+        path = ensure_tif_path(path)
+        save_mask_tif(path, mask)
+        apply_mask_to_sample(self.main_window, selected, mask.astype(np.float32))
+
+        QMessageBox.information(
+            self.main_window,
+            "ROI mask saved",
+            f"Saved and applied:\n{path}",
+        )
+
+    def save_manual_mask(self):
+        """Save Instruments mask via Save As dialog ({stem}_mask_polygon.tif suggested)."""
+        editor = self.main_window.mask_editor
+        selected = self.shared_info.config.get("selected_file")
+        if not selected:
+            self.save_error_message("Manual mask", "Select a file in the table first.")
+            return
+        if editor.mask is None or editor.mask.max() == 0:
+            self.save_error_message(
+                "Manual mask",
+                "Draw at least one region on the Intensity display "
+                "(Polygon / Lasso / Brush tools above the image).",
+            )
+            return
+
+        suggested = default_mask_filename(file_stem(selected), MASK_KIND_POLYGON)
+        path, _ = QFileDialog.getSaveFileName(
+            self.main_window,
+            "Save manual mask",
+            suggested,
+            _MASK_SAVE_FILTER,
+        )
+        if not path:
+            return
+
+        path = editor.save_to_path(path)
+        if path:
+            QMessageBox.information(
+                self.main_window,
+                "Manual mask saved",
+                f"Saved and applied:\n{path}",
+            )
+
+    def clear_manual_mask(self):
+        selected = self.shared_info.config.get("selected_file")
+        if not selected or selected not in self.shared_info.raw_data_dict:
+            return
+        self.main_window.mask_editor.clear_mask()
+        QMessageBox.information(self.main_window, "Mask cleared", f"Manual mask cleared for {selected}.")
+
+
+class MaskImportSourceDialog(QDialog):
+    """Step 2 of import-with-masks: folder scan vs multi-select mask files."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("How do you want to select masks?")
+        self.mode = "folder"
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(QLabel("Choose how to provide manual masks for your raw data:"))
+
+        self.folder_radio = QRadioButton("Select a folder containing mask TIFF files")
+        self.files_radio = QRadioButton("Select mask TIFF file(s) individually")
+        self.folder_radio.setChecked(True)
+
+        group = QButtonGroup(self)
+        group.addButton(self.folder_radio)
+        group.addButton(self.files_radio)
+        layout.addWidget(self.folder_radio)
+        layout.addWidget(self.files_radio)
+
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+        layout.addWidget(self.buttonBox)
+
+    def accept(self):
+        self.mode = "files" if self.files_radio.isChecked() else "folder"
+        super().accept()
 
 
 class ConditionInputDialog(QDialog):
@@ -638,22 +978,29 @@ class ConditionInputDialog(QDialog):
     def __init__(self, previous_conditions, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Experimental Condition")
-        
+
         self.comboBox = QComboBox(self)
         self.comboBox.setEditable(True)
-        self.comboBox.addItems(previous_conditions)
-        
+        # History of past conditions for the dropdown only — field starts empty each time
+        seen = set()
+        for cond in previous_conditions:
+            if cond and cond not in ("None", "reference") and cond not in seen:
+                self.comboBox.addItem(cond)
+                seen.add(cond)
+        self.comboBox.setCurrentIndex(-1)
+        self.comboBox.setCurrentText("")
+
         layout = QVBoxLayout()
         layout.addWidget(self.comboBox)
-        
+
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
-        
+
         layout.addWidget(self.buttonBox)
         self.setLayout(layout)
-        
+
     def getCondition(self):
-        return self.comboBox.currentText()
+        return self.comboBox.currentText().strip()
 
     

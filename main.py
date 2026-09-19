@@ -1,6 +1,6 @@
 import sys
 import os
-from PySide6 import QtWidgets
+
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QIcon, QPixmap
 from utils.dark_theme import get_darkModePalette
@@ -12,7 +12,11 @@ os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 base_path = os.path.abspath(os.path.dirname(__file__))
 icon_path = os.path.join(base_path, 'icon', 'icon_f.ico')
 
-app = QApplication(sys.argv + ['-platform', 'windows:darkmode=2'])
+qt_args = sys.argv.copy()
+if sys.platform.startswith("win"):
+    qt_args += ['-platform', 'windows:darkmode=2']
+
+app = QApplication(qt_args)
 app.setStyle('Fusion')
 app.setPalette(get_darkModePalette(app))
 
@@ -21,7 +25,7 @@ icon = QIcon(QPixmap(icon_path))
 app.setWindowIcon(icon)
 
 window = MainWindow(app)
-window.setWindowTitle("FLIMPA (v1.4.2)")
+window.setWindowTitle("FLIMPA (v2.0.0)")
 window.setWindowIcon(icon)  # Set the window icon here
 window.showMaximized()
 

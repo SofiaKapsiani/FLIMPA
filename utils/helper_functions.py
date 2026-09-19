@@ -17,7 +17,49 @@ class Helpers:
         self.main_window.figure_tau.clear()
         if self.shared_info.results_dict != {}:
             self.main_window.plotImages.plot_tau_map(masked_image=None)
-            self.main_window.phasor_componets.plot_phasor_coordinates(cmap="gist_rainbow_r")
+            self.main_window.phasor_componets.plot_phasor_coordinates()
+            self.main_window.plotImages.plot_fret_map()
+
+    def _all_files_selected(self):
+        """True when every file-table checkbox is checked (analyse: yes)."""
+        file_table = self.main_window.fileTable
+        if file_table.rowCount() == 0:
+            return False
+        for row in range(file_table.rowCount()):
+            item = file_table.item(row, 0)
+            if item and item.checkState() != Qt.Checked:
+                return False
+        return True
+
+    def update_select_all_button_label(self):
+        """Label toggles between 'Select all' and 'Deselect all' from checkbox state."""
+        button = getattr(self.main_window, 'select_all_files_button', None)
+        if button is None:
+            return
+        button.setText("Deselect all" if self._all_files_selected() else "Select all")
+
+    def toggle_all_file_selection(self):
+        """Toggle all file-table checkboxes and raw_data_dict['analyse'] — not plot visibility."""
+        file_table = self.main_window.fileTable
+        if file_table.rowCount() == 0:
+            return
+
+        select_all = not self._all_files_selected()
+        new_state = Qt.Checked if select_all else Qt.Unchecked
+        analyse = 'yes' if select_all else 'no'
+
+        file_table.blockSignals(True)
+        for row in range(file_table.rowCount()):
+            item = file_table.item(row, 0)
+            if not item:
+                continue
+            item.setCheckState(new_state)
+            filename = item.text()
+            if filename in self.shared_info.raw_data_dict:
+                self.shared_info.raw_data_dict[filename]['analyse'] = analyse
+        file_table.blockSignals(False)
+
+        self.update_select_all_button_label()
     
     def delete_selected_files(self):
         """delete files selected by user"""
@@ -46,14 +88,22 @@ class Helpers:
                 del self.shared_info.results_dict[filename]
             if filename in self.shared_info.intensity_img_dict:
                 del self.shared_info.intensity_img_dict[filename]
-    
-    def update_data_with_roi(self,  inside_ellipse):
-        # highlight areas selected by ROI tool
-        if self.main_window.tau_disp != None:
-           tau_map = self.shared_info.results_dict.get(self.shared_info.config["selected_file"])[self.shared_info.config["lifetime_map"]]
-           M_mask = np.zeros_like(tau_map)
-           M_mask[inside_ellipse] = tau_map[inside_ellipse]
-           self.main_window.plotImages.plot_tau_map( masked_image=M_mask)
+
+        self.update_select_all_button_label()
+
+    def update_data_with_roi(self, inside_ellipse):
+        """Map phasor ellipse selection to the selected file's Lifetime map (dim outside ROI)."""
+        if not self.shared_info.results_dict:
+            return
+        selected = self.shared_info.config.get("selected_file")
+        if selected not in self.shared_info.results_dict:
+            return
+
+        tau_map = self.shared_info.results_dict[selected][self.shared_info.config["lifetime_map"]]
+        roi_mask = np.zeros_like(tau_map, dtype=float)
+        roi_mask[inside_ellipse] = tau_map[inside_ellipse]
+        self.main_window.plotImages.plot_tau_map(masked_image=roi_mask)
+        self.main_window.canvas_tau.draw()
 
     def resizeIntensity(self):
         # resize your figures based on the current window size
@@ -69,6 +119,13 @@ class Helpers:
             self.main_window.canvas_tau.draw()
 
         except: 
+            pass
+
+    def resizeFret(self):
+        try:
+            self.main_window.plotImages.plot_fret_map()
+            self.main_window.canvas_fret.draw()
+        except:
             pass
     
     def resizeViolin(self):

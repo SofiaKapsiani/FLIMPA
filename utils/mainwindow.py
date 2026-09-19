@@ -9,6 +9,9 @@ from utils.plot_imgs import PlotImages
 from utils.shared_data import SharedData
 from utils.helper_functions import Helpers, NavigationToolbar_violin
 from utils.settings_box import TabSettingsWidgets
+from utils.mask_editor import ManualMaskEditor
+from utils.mask_instruments import wrap_plot_with_instruments
+from utils.decay_window import DecayCurveWindow
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -37,6 +40,8 @@ class MainWindow(QMainWindow):
         self.helpers = Helpers(self) # import helper functions
         self.shared_info = SharedData()
         self.tab_settings = TabSettingsWidgets(self)
+        self.mask_editor = ManualMaskEditor(self)
+        self.decay_window = DecayCurveWindow(self)
 
         # initialise the UI layout
         self.ui_layout = UILayout(self)
@@ -61,6 +66,10 @@ class MainWindow(QMainWindow):
         self.figure_tau = Figure(figsize=(6, 6), dpi=self.fixed_dpi,  facecolor=(18/255, 18/255, 18/255))
         self.canvas_tau = FigureCanvas(self.figure_tau)
 
+        # initialise FRET efficiency map
+        self.figure_fret = Figure(figsize=(6, 6), dpi=self.fixed_dpi, facecolor=(18/255, 18/255, 18/255))
+        self.canvas_fret = FigureCanvas(self.figure_fret)
+
         # initialise gallery image
         self.figure_gallery = Figure(figsize=(6, 6),  dpi=self.fixed_dpi, layout="compressed", facecolor=(18/255, 18/255, 18/255))
         self.canvas_gallery = FigureCanvas(self.figure_gallery)
@@ -84,7 +93,7 @@ class MainWindow(QMainWindow):
         """Generate tabs with results once phasor plot analysis has finished running"""
         self.shared_info.config["selected_file"] = list(self.shared_info.results_dict.keys())[-1]
         self.tau_disp = self.shared_info.results_dict.get(self.shared_info.config["selected_file"])
-        self.phasor_componets.plot_phasor_coordinates(cmap="gist_rainbow_r")
+        self.phasor_componets.plot_phasor_coordinates()
 
         # Check if the "Lifetime maps" tab already exists
         lifetime_maps_tab_index = None
@@ -100,7 +109,8 @@ class MainWindow(QMainWindow):
 
         if lifetime_maps_tab_index is not None:
             self.plotImages.plot_tau_map()
-            self.phasor_componets.plot_phasor_coordinates(cmap="gist_rainbow_r")
+            self.plotImages.plot_fret_map()
+            self.phasor_componets.plot_phasor_coordinates()
             # If the "Parameters" tab already exists, update the table widget
             self.table_widget = self.ui_layout.tabs_widget.widget(parameters_tab_index).layout().itemAt(0).widget()
             self.helpers.update_table_widget()
@@ -125,8 +135,12 @@ class MainWindow(QMainWindow):
             tab_tau_maps = QWidget()
             tab_tau_maps.setStyleSheet("QWidget { background-color: rgb(18, 18, 18);  }")
             self.layout_tau_maps = QVBoxLayout()
-            self.layout_tau_maps.addWidget(self.canvas_tau)
-            self.layout_tau_maps.addLayout(self.tab_settings.input_layout(box_type='lifetime_box'))
+            self.layout_tau_maps.setContentsMargins(0, 0, 0, 0)
+            self.tau_plot = wrap_plot_with_instruments(
+                self.canvas_tau, self, self.ui_layout
+            )
+            self.layout_tau_maps.addWidget(self.tau_plot, 1)
+            self.layout_tau_maps.addLayout(self.tab_settings.input_layout(box_type='lifetime_box'), 0)
             tab_tau_maps.setLayout(self.layout_tau_maps)
 
             self.plotImages.plot_tau_map()
@@ -136,8 +150,11 @@ class MainWindow(QMainWindow):
             gallery_widget = QWidget()
             gallery_widget.setStyleSheet("QWidget { background-color: rgb(18, 18, 18); }")
             self.gallery_layout_V = QVBoxLayout()
+            self.gallery_layout_V.setContentsMargins(8, 8, 8, 0)
+            self.gallery_layout_V.setSpacing(6)
             self.scroll_area = QScrollArea()  # Initialize scroll area
             self.scroll_area.setWidgetResizable(True)  # Allow content resizing within scroll area
+            self.scroll_area.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
             self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
             self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
@@ -147,8 +164,8 @@ class MainWindow(QMainWindow):
             self.gallery_layout_grid.setAlignment(Qt.AlignCenter)  # Center the grid layout
             self.scroll_area.setWidget(self.gallery_container)
 
-            self.gallery_layout_V.addWidget(self.scroll_area)
-            self.gallery_layout_V.addLayout(self.tab_settings.input_layout(box_type='gallery_box'))
+            self.gallery_layout_V.addWidget(self.scroll_area, 1)
+            self.gallery_layout_V.addLayout(self.tab_settings.input_layout(box_type='gallery_box'), 0)
 
             gallery_widget.setLayout(self.gallery_layout_V)
             self.ui_layout.tabs_widget.addTab(gallery_widget, "Gallery (tau)")
@@ -157,8 +174,11 @@ class MainWindow(QMainWindow):
             gallery_widget_I = QWidget()
             gallery_widget_I.setStyleSheet("QWidget { background-color: rgb(18, 18, 18); }")
             self.gallery_layout_V_I = QVBoxLayout()
+            self.gallery_layout_V_I.setContentsMargins(8, 8, 8, 0)
+            self.gallery_layout_V_I.setSpacing(6)
             self.scroll_area_I = QScrollArea()  # Initialize scroll area
             self.scroll_area_I.setWidgetResizable(True)  # Allow content resizing within scroll area
+            self.scroll_area_I.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
             self.scroll_area_I.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
             self.scroll_area_I.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
@@ -167,8 +187,8 @@ class MainWindow(QMainWindow):
             self.gallery_layout_grid_I = QGridLayout(self.gallery_container_I)
             self.scroll_area_I.setWidget(self.gallery_container_I)
 
-            self.gallery_layout_V_I.addWidget(self.scroll_area_I)
-            self.gallery_layout_V_I.addLayout(self.tab_settings.input_layout(box_type='input_box'))
+            self.gallery_layout_V_I.addWidget(self.scroll_area_I, 1)
+            self.gallery_layout_V_I.addLayout(self.tab_settings.input_layout(box_type='input_box'), 0)
 
             gallery_widget_I.setLayout(self.gallery_layout_V_I)
             self.ui_layout.tabs_widget.addTab(gallery_widget_I, "Gallery (I)")
@@ -177,15 +197,29 @@ class MainWindow(QMainWindow):
             violin_plot_tab = QWidget()
             violin_plot_tab.setStyleSheet("QWidget { background-color: rgb(18, 18, 18); }")
             self.violin_plot_layout = QVBoxLayout()
+            self.violin_plot_layout.setContentsMargins(8, 8, 8, 0)
+            self.violin_plot_layout.setSpacing(6)
 
             self.toolbar_violin = NavigationToolbar_violin(self.canvas_violin, self)
-            self.violin_plot_layout.addWidget(self.toolbar_violin)
-            self.violin_plot_layout.addWidget(self.canvas_violin)
-            self.violin_plot_layout.addLayout(self.tab_settings.input_layout(box_type='violin_box'))
+            self.toolbar_violin.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+            self.canvas_violin.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.violin_plot_layout.addWidget(self.toolbar_violin, 0)
+            self.violin_plot_layout.addWidget(self.canvas_violin, 1)
+            self.violin_plot_layout.addLayout(self.tab_settings.input_layout(box_type='violin_box'), 0)
 
             violin_plot_tab.setLayout(self.violin_plot_layout)
             self.ui_layout.tabs_widget.addTab(violin_plot_tab, "Violin plots")
-    
+
+        # Keep FRET as the rightmost tab once analysis tabs exist
+        tabs = self.ui_layout.tabs_widget
+        fret_index = None
+        for i in range(tabs.count()):
+            if tabs.tabText(i) == "FRET":
+                fret_index = i
+                break
+        if fret_index is not None and fret_index != tabs.count() - 1:
+            tabs.tabBar().moveTab(fret_index, tabs.count() - 1)
+
     def onTabChanged(self, index):
         # Save the name of the active tab
         current_tab_name = self.ui_layout.tabs_widget.tabText(index)
@@ -196,7 +230,11 @@ class MainWindow(QMainWindow):
 
         elif self.ui_layout.tabs_widget.tabText(index) == "Lifetime maps":
             self.plotImages.plot_tau_map()
-            self.phasor_componets.plot_phasor_coordinates(cmap="gist_rainbow_r")
+            self.phasor_componets.plot_phasor_coordinates()
+            self.shared_info.last_active_tab = current_tab_name
+
+        elif self.ui_layout.tabs_widget.tabText(index) == "FRET":
+            self.plotImages.plot_fret_map()
             self.shared_info.last_active_tab = current_tab_name
 
         elif self.ui_layout.tabs_widget.tabText(index) == "Gallery (tau)":
@@ -224,6 +262,8 @@ class MainWindow(QMainWindow):
                 self.helpers.resizeIntensity()
             elif self.ui_layout.tabs_widget.tabText(currentIndex) == "Lifetime maps":
                 self.helpers.resizeTau()
+            elif self.ui_layout.tabs_widget.tabText(currentIndex) == "FRET":
+                self.helpers.resizeFret()
             elif self.ui_layout.tabs_widget.tabText(currentIndex) == "Gallery (tau)":
                 self.helpers.resizeGallery()
             elif self.ui_layout.tabs_widget.tabText(currentIndex) == "Gallery (I)":

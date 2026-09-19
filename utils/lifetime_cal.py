@@ -7,7 +7,6 @@ from scipy import signal # for image binning
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QApplication, QInputDialog
 
-from utils.mainwindow import *
 from utils.shared_data import SharedData 
 import math
 from PIL import Image # load mask files
@@ -269,12 +268,27 @@ class LifetimeData(QObject):
             raise FileLoadingError(f"Error loading file '{file_name}': {e}")
 
     
-    def mask_data(self, masks_dir, file_name, data):
-        """Mask data based on manual masks provided"""
+    def mask_data(self, file_name, data, masks_dir=None, mask_files=None):
+        """
+        Load external mask TIFF and zero pixels outside labelled regions.
+        Used at import (load_masks); see utils.mask_io.resolve_mask_path / resolve_mask_from_files.
+        """
         try:
-            im = Image.open(os.path.join(masks_dir, file_name.split('.')[0] + ' segmentation.tif'))
-            mask_arr = np.array(im, dtype=np.float32)
-            # Create a masked version of the data
+            from utils.mask_io import load_mask_array, resolve_mask_from_files, resolve_mask_path
+
+            if mask_files is not None:
+                mask_path = resolve_mask_from_files(file_name, mask_files)
+            elif masks_dir is not None:
+                mask_path = resolve_mask_path(masks_dir, file_name)
+            else:
+                raise ValueError("Provide masks_dir or mask_files.")
+
+            if mask_path is None:
+                raise FileNotFoundError(
+                    f"No mask found for '{file_name}'. Expected a matching TIFF such as "
+                    f"'{{name}}_segmentation.tif', '{{name}}_mask_ROI.tif', or '{{name}}_mask_polygon.tif'."
+                )
+            mask_arr = load_mask_array(mask_path)
             masked_data = np.where(mask_arr == 0, np.zeros_like(data), data)
             return masked_data, mask_arr
         except Exception as e:
@@ -301,7 +315,7 @@ class LifetimeData(QObject):
         if max_photons_t and self.shared_info.config["max_photons"] != "None":
             masked_data = np.where(intensity > int(self.shared_info.config["max_photons"]), 0, masked_data)
 
-        kernel = np.ones((1, bins, bins))
+        kernel = np.ones((1, bins, bins))  # bins = spatial pixel block edge (e.g. 3 for 3×3)
         if mode_same:
             binData = signal.fftconvolve(masked_data, kernel, mode='same', axes=None)
         else:
@@ -404,7 +418,7 @@ class LifetimeData(QObject):
 
     # --- Back end scripts --- #
     def get_bins(self):
-        ''' Get number of bins from config file '''
+        """Pixel block edge length from config (spatial binning, not time channels)."""
         if self.shared_info.config["bins"] == "None":
             data_bins = 1
         elif self.shared_info.config["bins"] == "3x3":

@@ -20,7 +20,7 @@ class DataProcessingError(Exception):
 
 class MaskingError(Exception):
     """Exception raised for errors that occur during data masking."""
-    def __init__(self, message="Only .tif files are supported for masking. Please make sure that the file name is 'file_name segmentation.tif'"):
+    def __init__(self, message="Only .tif files are supported for masking. Please make sure that the file name is 'file_name_segmentation.tif'"):
         self.message = message
         super().__init__(self.message)
 

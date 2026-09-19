@@ -29,6 +29,13 @@ class SharedData:
             "scatter_type": "scatter",
             "tau_labels": True,
         }
+        # Gallery (tau) layer state only — not used on single-file Lifetime maps tab.
+        # order: draw order (top of list = drawn last / on top).
+        # visible: per-label checkbox state for overlay scatter/contour/histogram.
+        self.phasor_layers = {
+            "individual": {"order": [], "visible": {}},
+            "condition": {"order": [], "visible": {}},
+        }
         self.last_active_tab= {} # Dictionary to store the last tab selected in the GUI
 
     def load_config(self):
@@ -41,17 +48,14 @@ class SharedData:
         min_photons: 0 # threshold for minimum photon counts for the FLIM image
         max_photons: 1000000 # threshold for maximum photon counts for the FLIM image
 
-        bins: "3x3" # binning value for data. Can only be any odd number or 256.
+        bins: "3x3" # spatial pixel block size (UI: Pixel block size), e.g. 3x3 neighbours averaged
 
         ref_file: "None"
-        ref_lifetime: 4
+        ref_lifetime: 4 # donor-only lifetime tau_D (ns); default Rhod6G; used for FRET E = 1 - tau/tau_D
 
         subtract_offset: "False" # set True to calculate the intensity offset (baseline)
-        # assumption that first time bins contain only the background signal 
-        # calculate average of first time bins and substract them from the rest of the time points
-        # as data from different sources may have different number of time bins, provide a fraction 
-        #subtract_offsetRef: "False" # DEFAULT: choose True to compensate intensity offset for reference data
-        fraction_offset: 3.5 # assumption that 3.5 precent of the first time bins are background signal
+        # earliest delay-time channels (along decay) assumed to hold background only
+        fraction_offset: 3.5 # % of time channels used for baseline estimate (UI: % time channels)
         mask_samples: False # choose False to mask by intensity or True for import of .tif mask 
 
         vmin_int: 0
@@ -63,8 +67,13 @@ class SharedData:
         lifetime_vmax: 10
         lifetime_map: "average"
         lifetime_itegrate: "False"
+        lifetime_cmap: "Rainbow" # preset name or "Custom" — see utils/colormaps.py
+        lifetime_cmap_file: "None" # path when lifetime_cmap is Custom; else ignored
 
         tau_violin: "average"
+
+        fret_vmin: 0
+        fret_vmax: 1
         """
 
         # Load and parse the YAML content into a Python dictionary

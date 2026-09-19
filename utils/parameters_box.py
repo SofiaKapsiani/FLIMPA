@@ -1,7 +1,6 @@
 from PySide6.QtWidgets import QLabel, QHBoxLayout, QLineEdit, QComboBox, QGridLayout, QSizePolicy, QApplication, QWidget
 from PySide6.QtCore import Qt
 
-from utils.mainwindow import *
 from utils.shared_data import SharedData 
 
 class ParameterWidgets():
@@ -80,6 +79,8 @@ class ParameterWidgets():
             self.main_window.plotImages.update_mask_for_current_image()  # Call update_mask_for_current_image when min_photons is updated
         elif param_id =="frequency":
             self.main_window.phasor_componets.add_plot()
+        elif param_id == "ref_lifetime" and self.shared_info.results_dict:
+            self.main_window.plotImages.plot_fret_map()
 
     
     def update_ref_file(self, ref_filenames):
@@ -112,9 +113,44 @@ class ParameterWidgets():
         grid_parameters.addLayout(self.parameter_input(param_name="Min. photon counts", param_id="min_photons", ), 0, 1)
         grid_parameters.addLayout(self.parameter_input(param_name="Max. photon counts", param_id="max_photons"), 1, 1)
         grid_parameters.addLayout(self.parameter_input(param_name="Reference file", input_type="combobox", items=["None"], param_id="ref_file"), 1, 0)
-        grid_parameters.addLayout(self.parameter_input(param_name="Reference lifetime (ns)", param_id="ref_lifetime"), 2, 0)
-        grid_parameters.addLayout(self.parameter_input(param_name="Number of bins", input_type="combobox", items=["3x3", "7x7", "9x9", "12x12", "None"], param_id="bins"), 2, 1)
+        grid_parameters.addLayout(
+            self.parameter_input(
+                param_name="Reference lifetime (ns)",
+                param_id="ref_lifetime",
+                tooltip=(
+                    "Donor-only lifetime tau_D (ns). Default 4 ns for Rhodamine 6G (Rhod6G). "
+                    "Used for phasor reference correction and FRET efficiency: E = 1 - tau/tau_D."
+                ),
+            ),
+            2,
+            0,
+        )
+        grid_parameters.addLayout(
+            self.parameter_input(
+                param_name="Pixel block size",
+                input_type="combobox",
+                items=["3x3", "7x7", "9x9", "12x12", "None"],
+                param_id="bins",
+                tooltip=(
+                    "Spatial averaging: group neighbouring pixels into blocks (e.g. 3×3) "
+                    "before phasor calculation. This is not the fluorescence decay time axis."
+                ),
+            ),
+            2,
+            1,
+        )
         grid_parameters.addLayout(self.parameter_input(param_name="Baseline correction", input_type="combobox", items=["False", "True"], param_id="subtract_offset"), 3, 0)
-        grid_parameters.addLayout(self.parameter_input(param_name="% time bins (baseline corr.)", param_id="fraction_offset"), 3, 1)
+        grid_parameters.addLayout(
+            self.parameter_input(
+                param_name="% time channels (baseline corr.)",
+                param_id="fraction_offset",
+                tooltip=(
+                    "Fraction of the earliest delay-time channels used to estimate baseline offset "
+                    "(along the decay curve). Not spatial pixel grouping."
+                ),
+            ),
+            3,
+            1,
+        )
 
         return grid_parameters
