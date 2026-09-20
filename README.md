@@ -22,6 +22,12 @@ To run the software, please download the executable (<a href="https://github.com
 [[`FLIMPA (1.4.2)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)] [`user manual (PowerPoint)`](https://docs.google.com/presentation/d/1EI7sXPCHtFKzIoXbomWdI95hRj6MSl2IH-kWcBbJaBY/edit?usp=sharing)] [[`user manual (PDF)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [[`citation`](#bibtex-citation)]
 
 
+## FLIMPA v2
+
+<a href="https://github.com/SofiaKapsiani/FLIMPA/tree/flimpa_v2" target="_blank"> FLIMPA v2</a> provides additional tools for manual mask creation, fluorescence decay visualisation, FRET efficiency mapping, per-pixel data extraction, and an updated UI to improve accessibility. 
+
+This version was written post-publication by **Lev Gerasimov**, an undergraduate researcher in the Molecular Neuroscience Group at the University of Cambridge.
+
 ##  Features
 
 <div align="center">
