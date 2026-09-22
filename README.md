@@ -6,15 +6,15 @@
 
 **FLIMPA** is an open-source app for phasor-plot analysis of raw Time-Correlated Single Photon Counting (TCSPC) Fluorescence Lifetime Imaging Microscopy (FLIM) data.
 
-This repository is **FLIMPA 2.0.0** — a modified build based on [upstream FLIMPA v1.4.2](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2). It keeps the core phasor workflow and adds in-app masking, FRET maps, baseline-check decay curves, colour maps, export options, and UI updates documented below.
+This repository is **FLIMPA 2.0.0** — a modified build based on [FLIMPA v1.4.2](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2). It keeps the core phasor workflow and adds in-app masking, FRET maps, baseline-check decay curves, colour maps, export options, and UI updates documented below.
 
-This version was written post-publication by Lev Gerasimov as part of a summer project with the Molecular Neuroscience Group at the University of Cambridge. To run the software, please download the corresponding [`.exe`](https://github.com/levontiiy/Flimpa---modifications/releases/download/v2.0.0/FLIMPA_v2.0.0.exe) file for Windows or the [`.dmg`](https://github.com/levontiiy/Flimpa---modifications/releases/download/2.0.0/FLIMPA.v2.0.0.dmg) file for Mac. Please cite the following reference if you used this software in your research:
+This version was written post-publication by **Lev Gerasimov**, an undergraduate researcher in the Molecular Neuroscience Group at the University of Cambridge. To run the software, please download the corresponding [`.exe`](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.exe) file for Windows or the [`.dmg`](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.dmg) file for Mac. Please cite the following reference if you used this software in your research:
 
 > **FLIMPA: A Versatile Software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis**, published in *Analytical Chemistry*  
 > Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Mona Shehata, Clemens F. Kaminski, Gabriele S. Kaminski Schierle  
 > [Molecular Neuroscience Group](https://www.ceb-mng.org/) and [Laser Analytics Group](https://laser.ceb.cam.ac.uk/) (University of Cambridge)
 
-[[FLIMPA 2.0.0 (this fork)](https://github.com/levontiiy/Flimpa---modifications/releases/tag/v2.0.0)] [[upstream FLIMPA 1.4.2](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2)] [[paper](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)] [[user manual 2.0.0 (Word)](https://github.com/levontiiy/Flimpa---modifications/blob/main/docs/FLIMPA_2.0.0_User_Manual.docx)] [[user manual 2.0.0 (PowerPoint)](https://github.com/levontiiy/Flimpa---modifications/blob/main/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx)] [[user manual (PDF, upstream)](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [[citation](#citation)]
+[[FLIMPA 2.0.0 (Windows)](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.exe)] [[FLIMPA 2.0.0 (Mac)](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.dmg)] [[paper](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)] [[user manual 2.0.0 (Word)](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual.docx)] [[user manual 2.0.0 (PowerPoint)](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx)] [[user manual (PDF, upstream)](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [[citation](#citation)]
 
 ## Features
 
@@ -42,9 +42,9 @@ This version was written post-publication by Lev Gerasimov as part of a summer p
 - **Phasor plot** — **G** and **S** axis labels; **Layers** list on gallery phasor plots (show/hide files, reorder)
 - **Image navigation** — pan, zoom, and reset on intensity, lifetime, and FRET views
 - **Save data** menu — export lifetime maps, galleries, phasor/violin plots, lifetime table CSV, and **Export phasor points (G,S)...** (choose file from list → CSV with G, S, row, col for non-zero pixels)
-- **macOS app** — `FLIMPA.v2.0.0.dmg` via [Releases](https://github.com/levontiiy/Flimpa---modifications/releases/tag/2.0.0)
-- **Windows app** — single-file `FLIMPA_v2.0.0.exe` via [Releases](https://github.com/levontiiy/Flimpa---modifications/releases/tag/v2.0.0)
-- **User manual** — [Word](https://github.com/levontiiy/Flimpa---modifications/blob/main/docs/FLIMPA_2.0.0_User_Manual.docx) and [PowerPoint](https://github.com/levontiiy/Flimpa---modifications/blob/main/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx) (in this repo under `docs/`)
+- **macOS app** — `FLIMPA.v2.0.0.dmg` via [Releases](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.dmg)
+- **Windows app** — single-file `FLIMPA_v2.0.0.exe` via [Releases](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.exe)
+- **User manual** — [Word](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual.docx) and [PowerPoint](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx) (in this repo under `docs/`)
 - PyInstaller build scripts for macOS (`.dmg`) and Windows (single `.exe`)
 
 ---
@@ -53,18 +53,18 @@ This version was written post-publication by Lev Gerasimov as part of a summer p
 
 ## Download and Run from release
 
-Download builds from [Releases v2.0.0](https://github.com/levontiiy/Flimpa---modifications/releases/tag/v2.0.0):
+Download builds from [Releases v2.0.0](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v2.0.0):
 
 | Platform | File |
 |----------|------|
-| macOS | [`FLIMPA.v2.0.0.dmg`](https://github.com/levontiiy/Flimpa---modifications/releases/download/2.0.0/FLIMPA.v2.0.0.dmg) |
-| Windows | [`FLIMPA_v2.0.0.exe`](https://github.com/levontiiy/Flimpa---modifications/releases/download/v2.0.0/FLIMPA_v2.0.0.exe) |
+| macOS | [`FLIMPA.v2.0.0.dmg`](https://github.com/SofiaKapsiani/FLIMPA/releases/download/2.0.0/FLIMPA.v2.0.0.dmg) |
+| Windows | [`FLIMPA.v2.0.0.exe`](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.exe) |
 
-**User manuals (in the repository, not release assets):** [Word](https://github.com/levontiiy/Flimpa---modifications/blob/main/docs/FLIMPA_2.0.0_User_Manual.docx) · [PowerPoint](https://github.com/levontiiy/Flimpa---modifications/blob/main/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx)
+**User manuals (in the repository, not release assets):** [Word](https://github.com/SofiaKapsiani/FLIMPA/blob/main/docs/FLIMPA_2.0.0_User_Manual.docx) · [PowerPoint](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx)
 
 ### macOS
 
-1. **Download** **`FLIMPA.v2.0.0.dmg`** from [Releases v2.0.0](https://github.com/levontiiy/Flimpa---modifications/releases/tag/2.0.0).
+1. **Download** **`FLIMPA.v2.0.0.dmg`** from [Releases v2.0.0](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v2.0.0).
 2. **Open the disk image** — double-click `FLIMPA.v2.0.0.dmg`. A Finder window titled **FLIMPA 2.0.0** opens (this is the installer disk, not the app itself).
 3. **Install** — drag **FLIMPA** to **Applications**.
 4. **Eject** the disk image (right-click the **FLIMPA 2.0.0** volume → **Eject**).
@@ -88,7 +88,7 @@ Then open FLIMPA again.
 
 ### Windows
 
-1. **Download** **`FLIMPA_v2.0.0.exe`** from [Releases v2.0.0](https://github.com/levontiiy/Flimpa---modifications/releases/tag/v2.0.0).
+1. **Download** **`FLIMPA_v2.0.0.exe`** from [Releases v2.0.0](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v2.0.0).
 2. **Run** the file (double-click). No separate installer folder is required — this is a single-file build.
 3. On first launch, Windows SmartScreen may warn that the app is unrecognised. Click **More info** → **Run anyway** (unsigned release).
 
@@ -102,12 +102,12 @@ Needs **Python 3.11 or newer**, **pip**, and internet once (to download packages
 
 To build standalone apps yourself, use **PyInstaller** (listed in `requirements.txt`). Run `bash scripts/build_release.sh 2.0.0` from the project root (macOS → `.dmg`). On Windows, run `pyinstaller --noconfirm FLIMPA.spec` to produce a single-file `dist\FLIMPA.exe`.
 
-**Publishing:** attach built `.dmg` / `.exe` files to a [GitHub Release](https://github.com/levontiiy/Flimpa---modifications/releases) (same pattern as upstream FLIMPA). Do not commit those large binaries to the repo — `release/`, `dist/`, and `*.dmg` / `*.exe` are gitignored. User manuals are kept in `docs/` in git ([Word](https://github.com/levontiiy/Flimpa---modifications/blob/main/docs/FLIMPA_2.0.0_User_Manual.docx), [PowerPoint](https://github.com/levontiiy/Flimpa---modifications/blob/main/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx)).
+**Publishing:** attach built `.dmg` / `.exe` files to a [GitHub Release](https://github.com/SofiaKapsiani/FLIMPA/releases) (same pattern as upstream FLIMPA). Do not commit those large binaries to the repo — `release/`, `dist/`, and `*.dmg` / `*.exe` are gitignored. User manuals are kept in `docs/` in git ([Word](https://github.com/SofiaKapsiani/FLIMPA/blob/main/docs/FLIMPA_2.0.0_User_Manual.docx), [PowerPoint](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx)).
 
 ## 1. Download the code
 
 ```bash
-git clone https://github.com/levontiiy/Flimpa---modifications.git
+git clone https://github.com/SofiaKapsiani/FLIMPA.git
 cd Flimpa---modifications
 ```
 
@@ -181,7 +181,7 @@ If `git` is not installed, download the repository ZIP instead.
 
 # Usage
 
-For the original FLIMPA workflow, also see the [2.0.0 PowerPoint user manual](https://github.com/levontiiy/Flimpa---modifications/blob/main/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx) and the upstream [PDF supplement](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf).
+For the original FLIMPA workflow, also see the [2.0.0 PowerPoint user manual](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx) and the upstream [PDF supplement](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf).
 
 The layout is: parameters and **Run Phasor Plot Analysis** on the left, the phasor plot under that, image tabs in the centre, and the file list on the right. After analysis, extra tabs appear for lifetime maps, galleries, violin plots, and the lifetime table.
 
@@ -201,7 +201,7 @@ For best results, use spatial sizes up to 512 × 512. Files larger than about 10
 > Data must be `(time, x, y)`. You will be asked for the **bin width** (ns).  
 > If it is unknown, **Estimate** uses `(1 / (laser frequency in Hz × number of bins)) × 10^9`. That estimate can be wrong depending on acquisition settings.
 
-For `.ptu` files, see slides 5–6 of the [PowerPoint user manual](https://github.com/levontiiy/Flimpa---modifications/blob/main/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx).
+For `.ptu` files, see slides 5–6 of the [PowerPoint user manual](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx).
 
 Sample `.sdt` files are in `sample_data/` (COS-7 cells, SiR-tubulin, Nocodazole-treated and controls from the publication). Example masks are in `sample_data/masks_example/` and `sample_data/Masks_created/`.
 
@@ -237,7 +237,7 @@ Set these parameters (left panel), then click **Run Phasor Plot Analysis**:
 | **Baseline correction** | `True` subtracts a constant offset estimated from the earliest delay channels (read baseline correction) |
 | **% time channels (baseline corr.)** | to account for detector delays (default 3.5%) |
 
-**Warning:** if real fluorescence is already present in the earliest time channels (for example after heavy `.ptu` time binning), baseline correction will subtract signal as well as noise. See slide 10 of the [PowerPoint user manual](https://github.com/levontiiy/Flimpa---modifications/blob/main/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx).
+**Warning:** if real fluorescence is already present in the earliest time channels (for example after heavy `.ptu` time binning), baseline correction will subtract signal as well as noise. See slide 10 of the [PowerPoint user manual](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx).
 
 ## Phasor plot
 
