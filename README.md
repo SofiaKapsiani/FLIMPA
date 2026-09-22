@@ -7,28 +7,28 @@
 
 <p align="center">
   <strong> ** Please use our latest version </strong> 
-  <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2">
-    FLIMPA (v1.4.2) </a> **
+  <a href="https://github.com/SofiaKapsiani/FLIMPA/tree/flimpa_v2">
+    FLIMPA (v2.0.0) </a> **
 </p>
 
 **FLIMPA** is an open-source software designed for the phasor plot analysis of raw Time-Correlated Single Photon Counting (TCSPC) Fluorescence Lifetime Imaging Microscopy (FLIM) data.
 <br>
-To run the software, please download the executable (<a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2" title=".exe" download>.exe</a>) file. Currently, the .exe file runs only on Windows computers.
 
 > **FLIMPA: A Versatile Software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis**, published in *Analytical Chemistry*          
 > Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Mona Shehata, Clemens F. Kaminski, Gabriele S. Kaminski Schierle    
 > <a href="https://www.ceb-mng.org/" target="_blank">Molecular Neuroscience Group</a> and <a href="https://laser.ceb.cam.ac.uk/" target="_blank">Laser Analytics Group</a> (University of Cambridge)
 > 
-[[`FLIMPA (1.4.2)`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)] [`user manual (PowerPoint)`](https://docs.google.com/presentation/d/1EI7sXPCHtFKzIoXbomWdI95hRj6MSl2IH-kWcBbJaBY/edit?usp=sharing)] [[`user manual (PDF)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [[`citation`](#bibtex-citation)]
+[[`FLIMPA v2.0.0 (latest)`](https://github.com/SofiaKapsiani/FLIMPA/tree/flimpa_v2)] [[`FLIMPA v1.4.2`](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2)] [[`paper`](https://pubs.acs.org/doi/10.1021/acs.analchem.5c00495)] [[`user manual v1.4.2 (PowerPoint)`](https://docs.google.com/presentation/d/1EI7sXPCHtFKzIoXbomWdI95hRj6MSl2IH-kWcBbJaBY/edit?usp=sharing)] [[`user manual (publication)`](https://pubs.acs.org/doi/suppl/10.1021/acs.analchem.5c00495/suppl_file/ac5c00495_si_002.pdf)] [[`citation`](#bibtex-citation)]
 
+> **Note:** v1.4.2 is the last release of FLIMPA v1, which is based on the published work. FLIMPA v2 includes features added after the publication.
 
 ## FLIMPA v2
 
-<a href="https://github.com/SofiaKapsiani/FLIMPA/tree/flimpa_v2" target="_blank"> FLIMPA v2</a> provides additional tools for manual mask creation, fluorescence decay visualisation, FRET efficiency mapping, per-pixel data extraction, and an updated UI to improve accessibility. 
+<a href="https://github.com/SofiaKapsiani/FLIMPA/tree/flimpa_v2" target="_blank">FLIMPA v2</a> provides additional tools for manual mask creation, fluorescence decay visualisation, FRET efficiency mapping, per-pixel data extraction, and an updated UI to improve accessibility.
 
 This version was written post-publication by **Lev Gerasimov**, an undergraduate researcher in the Molecular Neuroscience Group at the University of Cambridge.
 
-##  Features
+## Core features (FLIMPA v1)
 
 <div align="center">
   <img src="https://github.com/user-attachments/assets/48a6a9b8-3d79-4cb2-a910-56432db24f60" alt="flimpa_abstract_figure"  width=80% height=80%>
@@ -46,7 +46,9 @@ This version was written post-publication by **Lev Gerasimov**, an undergraduate
 
 # Installation
 
-FLIMPA can be easily run on Windows using the <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2" title=".exe" download>.exe</a> file. Alternatively, you can clone the GitHub repository and run the software following these steps:
+FLIMPA v1 can be run on Windows using the <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2" title=".exe" download>.exe</a> file. For macOS, please see <a href="https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v2.0.0" target="_blank">FLIMPA v2.0.0</a>.
+
+Alternatively, you can clone the GitHub repository and run the software following these steps:
 
 1. **Download the repository**
     ```bash
