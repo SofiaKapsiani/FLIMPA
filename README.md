@@ -43,7 +43,7 @@ This version was written post-publication by **Lev Gerasimov**, an undergraduate
 - **Image navigation** — pan, zoom, and reset on intensity, lifetime, and FRET views
 - **Save data** menu — export lifetime maps, galleries, phasor/violin plots, lifetime table CSV, and **Export phasor points (G,S)...** (choose file from list → CSV with G, S, row, col for non-zero pixels)
 - **macOS app** — `FLIMPA.v2.0.0.dmg` via [Releases](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.dmg)
-- **Windows app** — single-file `FLIMPA_v2.0.0.exe` via [Releases](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.exe)
+- **Windows app** — single-file `FLIMPA.v2.0.0.exe` via [Releases](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.exe)
 - **User manual** — [Word](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual.docx) and [PowerPoint](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx) (in this repo under `docs/`)
 - PyInstaller build scripts for macOS (`.dmg`) and Windows (single `.exe`)
 
@@ -57,10 +57,10 @@ Download builds from [Releases v2.0.0](https://github.com/SofiaKapsiani/FLIMPA/r
 
 | Platform | File |
 |----------|------|
-| macOS | [`FLIMPA.v2.0.0.dmg`](https://github.com/SofiaKapsiani/FLIMPA/releases/download/2.0.0/FLIMPA.v2.0.0.dmg) |
+| macOS | [`FLIMPA.v2.0.0.dmg`](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.dmg) |
 | Windows | [`FLIMPA.v2.0.0.exe`](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.exe) |
 
-**User manuals (in the repository, not release assets):** [Word](https://github.com/SofiaKapsiani/FLIMPA/blob/main/docs/FLIMPA_2.0.0_User_Manual.docx) · [PowerPoint](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx)
+**User manuals (in the repository, not release assets):** [Word](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual.docx) · [PowerPoint](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx)
 
 ### macOS
 
@@ -88,7 +88,7 @@ Then open FLIMPA again.
 
 ### Windows
 
-1. **Download** **`FLIMPA_v2.0.0.exe`** from [Releases v2.0.0](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v2.0.0).
+1. **Download** **`FLIMPA.v2.0.0.exe`** from [Releases v2.0.0](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v2.0.0).
 2. **Run** the file (double-click). No separate installer folder is required — this is a single-file build.
 3. On first launch, Windows SmartScreen may warn that the app is unrecognised. Click **More info** → **Run anyway** (unsigned release).
 
@@ -102,13 +102,14 @@ Needs **Python 3.11 or newer**, **pip**, and internet once (to download packages
 
 To build standalone apps yourself, use **PyInstaller** (listed in `requirements.txt`). Run `bash scripts/build_release.sh 2.0.0` from the project root (macOS → `.dmg`). On Windows, run `pyinstaller --noconfirm FLIMPA.spec` to produce a single-file `dist\FLIMPA.exe`.
 
-**Publishing:** attach built `.dmg` / `.exe` files to a [GitHub Release](https://github.com/SofiaKapsiani/FLIMPA/releases) (same pattern as upstream FLIMPA). Do not commit those large binaries to the repo — `release/`, `dist/`, and `*.dmg` / `*.exe` are gitignored. User manuals are kept in `docs/` in git ([Word](https://github.com/SofiaKapsiani/FLIMPA/blob/main/docs/FLIMPA_2.0.0_User_Manual.docx), [PowerPoint](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx)).
+**Publishing:** attach built `.dmg` / `.exe` files to a [GitHub Release](https://github.com/SofiaKapsiani/FLIMPA/releases) (same pattern as upstream FLIMPA). Do not commit those large binaries to the repo — `release/`, `dist/`, and `*.dmg` / `*.exe` are gitignored. User manuals are kept in `docs/` in git ([Word](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual.docx), [PowerPoint](https://github.com/SofiaKapsiani/FLIMPA/blob/flimpa_v2/docs/FLIMPA_2.0.0_User_Manual_Presentation.pptx)).
 
 ## 1. Download the code
 
 ```bash
 git clone https://github.com/SofiaKapsiani/FLIMPA.git
-cd Flimpa---modifications
+cd FLIMPA
+git checkout flimpa_v2
 ```
 
 Or download the ZIP from GitHub and open that folder.
