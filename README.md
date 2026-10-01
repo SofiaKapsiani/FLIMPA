@@ -8,7 +8,7 @@
 
 This repository is **FLIMPA 2.0.0** — a modified build based on [FLIMPA v1.4.2](https://github.com/SofiaKapsiani/FLIMPA/releases/tag/v1.4.2). It keeps the core phasor workflow and adds in-app masking, FRET maps, baseline-check decay curves, colour maps, export options, and UI updates documented below.
 
-This version was written post-publication by **Lev Gerasimov**, an undergraduate researcher in the Molecular Neuroscience Group at the University of Cambridge. To run the software, please download the corresponding [`.exe`](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.exe) file for Windows or the [`.dmg`](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.dmg) file for Mac. Please cite the following reference if you used this software in your research:
+This version of FLIMPA was written post-publication by **Lev Gerasimov**, an undergraduate researcher in the Molecular Neuroscience Group at the University of Cambridge. To run the software, please download the corresponding [`.exe`](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.exe) file for Windows or the [`.dmg`](https://github.com/SofiaKapsiani/FLIMPA/releases/download/v2.0.0/FLIMPA.v2.0.0.dmg) file for Mac. Please cite the following reference if you used this software in your research:
 
 > **FLIMPA: A Versatile Software for Fluorescence Lifetime Imaging Microscopy Phasor Analysis**, published in *Analytical Chemistry*  
 > Sofia Kapsiani, Nino F Läubli, Edward N. Ward, Mona Shehata, Clemens F. Kaminski, Gabriele S. Kaminski Schierle  
