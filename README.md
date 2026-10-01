@@ -26,7 +26,7 @@
 
 <a href="https://github.com/SofiaKapsiani/FLIMPA/tree/flimpa_v2" target="_blank">FLIMPA v2</a> provides additional tools for manual mask creation, fluorescence decay visualisation, FRET efficiency mapping, per-pixel data extraction, and an updated UI to improve accessibility.
 
-This version was written post-publication by **Lev Gerasimov**, an undergraduate researcher in the Molecular Neuroscience Group at the University of Cambridge.
+This version was written post-publication by **Lev** **Gerasimov**, an undergraduate researcher in the Molecular Neuroscience Group at the University of Cambridge.
 
 ## Core features (FLIMPA v1)
 
